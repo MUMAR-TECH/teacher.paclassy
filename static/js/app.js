@@ -139,10 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const initial = name.charAt(0).toUpperCase();
   const role = (user.role || 'user').charAt(0).toUpperCase() + (user.role || 'user').slice(1);
 
-  const el = id => document.getElementById(id);
-  if (el('header-username')) el('header-username').textContent = name;
-  if (el('header-avatar-initial')) el('header-avatar-initial').textContent = initial;
-  if (el('sidebar-username')) el('sidebar-username').textContent = name;
-  if (el('sidebar-role')) el('sidebar-role').textContent = role;
-  if (el('sidebar-avatar-initial')) el('sidebar-avatar-initial').textContent = initial;
+  const getById = id => document.getElementById(id);
+  if (getById('header-username')) getById('header-username').textContent = name;
+  if (getById('header-avatar-initial')) getById('header-avatar-initial').textContent = initial;
+  if (getById('sidebar-username')) getById('sidebar-username').textContent = name;
+  if (getById('sidebar-role')) getById('sidebar-role').textContent = role;
+  if (getById('sidebar-avatar-initial')) getById('sidebar-avatar-initial').textContent = initial;
 });

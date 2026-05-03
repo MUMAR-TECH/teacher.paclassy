@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance — Paclassy{% endblock %}
+{% block page_title %}Attendance Management{% endblock %}
+{% block sidebar_color %}bg-gradient-to-b from-indigo-800 to-indigo-900{% endblock %}
+
+{% block sidebar_nav %}
+<a href="/dashboard/teacher/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">🏠</span><span x-show="sidebarOpen">Dashboard</span>
+</a>
+<a href="/school/attendance/" class="sidebar-link active text-white">
+  <span class="text-lg">✅</span><span x-show="sidebarOpen">Attendance</span>
+</a>
+<a href="/school/timetable/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">🗓️</span><span x-show="sidebarOpen">Timetable</span>
+</a>
+<a href="/school/students/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">👥</span><span x-show="sidebarOpen">Students</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div>
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-2xl">✅</div>
+      <div>
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">Attendance</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Track student attendance</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <input type="date" id="filter-date" class="input-field w-auto" value="">
+      <button onclick="loadAttendance()" class="btn-secondary">🔍 Filter</button>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="card text-center">
+      <div class="text-2xl font-bold text-emerald-600" id="stat-present">0</div>
+      <div class="text-xs text-gray-500 mt-1">Present</div>
+    </div>
+    <div class="card text-center">
+      <div class="text-2xl font-bold text-red-600" id="stat-absent">0</div>
+      <div class="text-xs text-gray-500 mt-1">Absent</div>
+    </div>
+    <div class="card text-center">
+      <div class="text-2xl font-bold text-amber-600" id="stat-late">0</div>
+      <div class="text-xs text-gray-500 mt-1">Late</div>
+    </div>
+    <div class="card text-center">
+      <div class="text-2xl font-bold text-blue-600" id="stat-excused">0</div>
+      <div class="text-xs text-gray-500 mt-1">Excused</div>
+    </div>
+  </div>
+
+  <!-- Attendance Records -->
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-semibold text-gray-800 dark:text-white">Attendance Records</h3>
+    </div>
+    <div id="attendance-list" class="space-y-2">
+      <div class="animate-pulse space-y-2">
+        <div class="h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+        <div class="h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+        <div class="h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  requireAuth();
+
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('filter-date').value = today;
+
+  async function loadAttendance() {
+    const date = document.getElementById('filter-date').value;
+    const data = await apiGet(`/api/v1/school-mgmt/attendance/?date=${date}`);
+    const container = document.getElementById('attendance-list');
+    const items = data?.results || data || [];
+
+    if (!items.length) {
+      container.innerHTML = '<p class="text-center text-gray-400 py-8">No attendance records for this date.</p>';
+      document.getElementById('stat-present').textContent = 0;
+      document.getElementById('stat-absent').textContent = 0;
+      document.getElementById('stat-late').textContent = 0;
+      document.getElementById('stat-excused').textContent = 0;
+      return;
+    }
+
+    const statusCounts = { present: 0, absent: 0, late: 0, excused: 0 };
+    items.forEach(r => { statusCounts[r.status] = (statusCounts[r.status] || 0) + 1; });
+
+    document.getElementById('stat-present').textContent = statusCounts.present;
+    document.getElementById('stat-absent').textContent = statusCounts.absent;
+    document.getElementById('stat-late').textContent = statusCounts.late;
+    document.getElementById('stat-excused').textContent = statusCounts.excused;
+
+    const statusColors = {
+      present: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+      absent: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800',
+      late: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+      excused: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+    };
+    const statusIcons = { present: '✅', absent: '❌', late: '⏰', excused: '📋' };
+
+    container.innerHTML = items.map(r => `
+      <div class="flex items-center justify-between p-3 rounded-xl border ${statusColors[r.status]} transition-colors">
+        <div class="flex items-center gap-3">
+          <span class="text-lg">${statusIcons[r.status] || '📋'}</span>
+          <div>
+            <p class="text-sm font-medium">Student #${r.student}</p>
+            <p class="text-xs opacity-70">Class #${r.class_obj} · ${r.date}</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="badge text-xs font-medium capitalize">${r.status}</span>
+          ${r.notes ? `<p class="text-xs opacity-60 mt-0.5">${r.notes}</p>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  loadAttendance();
+</script>
+{% endblock %}

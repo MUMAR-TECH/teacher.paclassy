@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+
+{% block title %}Lesson Planner — Paclassy{% endblock %}
+{% block page_title %}AI Lesson Planner{% endblock %}
+{% block sidebar_color %}bg-gradient-to-b from-indigo-800 to-indigo-900{% endblock %}
+
+{% block sidebar_nav %}
+<a href="/dashboard/teacher/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">🏠</span><span x-show="sidebarOpen">Dashboard</span>
+</a>
+<a href="/ai/lesson-planner/" class="sidebar-link active text-white">
+  <span class="text-lg">📋</span><span x-show="sidebarOpen">Lesson Planner</span>
+</a>
+<a href="/ai/assessment-generator/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">📝</span><span x-show="sidebarOpen">Assessments</span>
+</a>
+<a href="/ai/content-generator/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">✨</span><span x-show="sidebarOpen">Content Generator</span>
+</a>
+<a href="/ai/tutor/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">🤖</span><span x-show="sidebarOpen">AI Tutor</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-2xl">📋</div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white">AI Lesson Planner</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Generate comprehensive lesson plans with AI assistance</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <!-- Form -->
+    <div class="lg:col-span-2">
+      <div class="card">
+        <h3 class="font-semibold text-gray-800 dark:text-white mb-4">Plan Details</h3>
+        <form id="lesson-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Title</label>
+            <input type="text" id="lp-title" required class="input-field" placeholder="e.g., Introduction to Photosynthesis">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Subject</label>
+            <input type="text" id="lp-subject" required class="input-field" placeholder="e.g., Biology">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Grade</label>
+              <input type="text" id="lp-grade" required class="input-field" placeholder="e.g., Grade 8">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Duration (min)</label>
+              <input type="number" id="lp-duration" required class="input-field" value="45" min="1">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Learning Objectives</label>
+            <textarea id="lp-objectives" required rows="3" class="input-field" placeholder="Students will be able to..."></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Curriculum (optional)</label>
+            <input type="text" id="lp-curriculum" class="input-field" placeholder="e.g., National Curriculum">
+          </div>
+          <button type="submit" id="generate-btn" class="btn-primary w-full justify-center py-3">
+            <span id="btn-text">✨ Generate Lesson Plan</span>
+            <span id="btn-spinner" class="hidden">
+              <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Generating...
+            </span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="lg:col-span-3">
+      <div id="result-placeholder" class="card h-full flex flex-col items-center justify-center text-center py-16 border-2 border-dashed border-gray-200 dark:border-gray-700">
+        <div class="text-5xl mb-4">🤖</div>
+        <p class="text-gray-500 dark:text-gray-400 font-medium">Your AI-generated lesson plan will appear here</p>
+        <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Fill in the form and click Generate</p>
+      </div>
+      <div id="result-content" class="hidden card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-800 dark:text-white" id="result-title">Lesson Plan</h3>
+          <div class="flex gap-2">
+            <button onclick="printLesson()" class="btn-secondary text-xs">🖨️ Print</button>
+            <button onclick="copyLesson()" class="btn-secondary text-xs">📋 Copy</button>
+          </div>
+        </div>
+        <div id="lesson-output" class="prose dark:prose-invert max-w-none text-sm space-y-4"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Previous Lesson Plans -->
+  <div class="mt-8 card">
+    <h3 class="font-semibold text-gray-800 dark:text-white mb-4">Previous Lesson Plans</h3>
+    <div id="previous-plans" class="space-y-2"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  requireAuth();
+
+  let currentLesson = null;
+
+  document.getElementById('lesson-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('generate-btn');
+    const spinner = document.getElementById('btn-spinner');
+    const btnText = document.getElementById('btn-text');
+
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
+    btnText.classList.add('hidden');
+
+    const payload = {
+      title: document.getElementById('lp-title').value,
+      subject: document.getElementById('lp-subject').value,
+      grade: document.getElementById('lp-grade').value,
+      duration: parseInt(document.getElementById('lp-duration').value),
+      objectives: document.getElementById('lp-objectives').value,
+      curriculum: document.getElementById('lp-curriculum').value || 'Standard',
+    };
+
+    const data = await apiPost('/api/v1/ai/lesson-plans/', payload);
+
+    btn.disabled = false;
+    spinner.classList.add('hidden');
+    btnText.classList.remove('hidden');
+
+    if (data) {
+      currentLesson = data;
+      displayLesson(data);
+      loadPreviousPlans();
+    } else {
+      showToast('Failed to generate lesson plan', 'error');
+    }
+  });
+
+  function displayLesson(data) {
+    document.getElementById('result-placeholder').classList.add('hidden');
+    document.getElementById('result-content').classList.remove('hidden');
+    document.getElementById('result-title').textContent = data.title;
+
+    const content = data.content;
+    let html = '';
+
+    if (content.overview) {
+      html += `<div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl"><p class="text-sm text-indigo-700 dark:text-indigo-300"><strong>Overview:</strong> ${content.overview}</p></div>`;
+    }
+    if (content.objectives?.length) {
+      html += `<div><h4 class="font-semibold text-gray-700 dark:text-gray-300 mb-2">🎯 Learning Objectives</h4><ul class="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">${content.objectives.map(o => `<li>${o}</li>`).join('')}</ul></div>`;
+    }
+    if (content.materials?.length) {
+      html += `<div><h4 class="font-semibold text-gray-700 dark:text-gray-300 mb-2">📚 Materials Needed</h4><div class="flex flex-wrap gap-2">${content.materials.map(m => `<span class="badge bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">${m}</span>`).join('')}</div></div>`;
+    }
+    if (content.sections?.length) {
+      html += `<div><h4 class="font-semibold text-gray-700 dark:text-gray-300 mb-2">⏱️ Lesson Sections</h4><div class="space-y-3">`;
+      content.sections.forEach(s => {
+        html += `<div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <div class="flex justify-between items-center mb-2">
+            <p class="font-medium text-gray-800 dark:text-white text-sm">${s.name}</p>
+            <span class="badge bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">${s.duration} min</span>
+          </div>
+          <ul class="list-disc list-inside text-xs text-gray-600 dark:text-gray-400 space-y-1">${(s.activities || []).map(a => `<li>${a}</li>`).join('')}</ul>
+          ${s.teacher_notes ? `<p class="mt-2 text-xs text-amber-600 dark:text-amber-400">💡 ${s.teacher_notes}</p>` : ''}
+        </div>`;
+      });
+      html += `</div></div>`;
+    }
+    if (content.assessment) {
+      html += `<div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl"><p class="text-sm"><strong class="text-emerald-700 dark:text-emerald-300">📊 Assessment:</strong> <span class="text-gray-600 dark:text-gray-400">${content.assessment}</span></p></div>`;
+    }
+    if (content.homework) {
+      html += `<div class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl"><p class="text-sm"><strong class="text-amber-700 dark:text-amber-300">📖 Homework:</strong> <span class="text-gray-600 dark:text-gray-400">${content.homework}</span></p></div>`;
+    }
+
+    document.getElementById('lesson-output').innerHTML = html || '<p class="text-gray-500">Lesson plan generated successfully.</p>';
+  }
+
+  function loadPreviousPlans() {
+    apiGet('/api/v1/ai/lesson-plans/').then(data => {
+      const container = document.getElementById('previous-plans');
+      const items = data?.results || data || [];
+      if (!items.length) {
+        container.innerHTML = '<p class="text-sm text-gray-400">No lesson plans yet.</p>';
+        return;
+      }
+      container.innerHTML = items.map(p => `
+        <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+          <div>
+            <p class="text-sm font-medium text-gray-800 dark:text-white">${p.title}</p>
+            <p class="text-xs text-gray-500">${p.subject} · ${p.grade} · ${p.duration}min</p>
+          </div>
+          <span class="text-xs text-gray-400">${new Date(p.created_at).toLocaleDateString()}</span>
+        </div>
+      `).join('');
+    });
+  }
+
+  function printLesson() { window.print(); }
+  function copyLesson() {
+    const text = document.getElementById('lesson-output').innerText;
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!', 'success'));
+  }
+
+  loadPreviousPlans();
+</script>
+{% endblock %}

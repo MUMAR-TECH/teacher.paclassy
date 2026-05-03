@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Content Generator — Paclassy{% endblock %}
+{% block page_title %}AI Content Generator{% endblock %}
+{% block sidebar_color %}bg-gradient-to-b from-indigo-800 to-indigo-900{% endblock %}
+
+{% block sidebar_nav %}
+<a href="/dashboard/teacher/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">🏠</span><span x-show="sidebarOpen">Dashboard</span>
+</a>
+<a href="/ai/lesson-planner/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">📋</span><span x-show="sidebarOpen">Lesson Planner</span>
+</a>
+<a href="/ai/assessment-generator/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">📝</span><span x-show="sidebarOpen">Assessments</span>
+</a>
+<a href="/ai/content-generator/" class="sidebar-link active text-white">
+  <span class="text-lg">✨</span><span x-show="sidebarOpen">Content Generator</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl">✨</div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white">AI Content Generator</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Generate notes, worksheets, and slide outlines instantly</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <div class="lg:col-span-2">
+      <div class="card">
+        <h3 class="font-semibold text-gray-800 dark:text-white mb-4">Content Settings</h3>
+        <form id="content-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Content Type</label>
+            <div class="space-y-2">
+              <label class="flex items-center gap-3 p-3 rounded-xl border-2 border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 cursor-pointer" id="type-notes-label">
+                <input type="radio" name="content_type" value="notes" checked class="text-emerald-500"> 
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">📄 Study Notes</span>
+              </label>
+              <label class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 cursor-pointer">
+                <input type="radio" name="content_type" value="worksheet" class="text-emerald-500">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">📋 Worksheet</span>
+              </label>
+              <label class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 cursor-pointer">
+                <input type="radio" name="content_type" value="slides_outline" class="text-emerald-500">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">📊 Slides Outline</span>
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Subject</label>
+            <input type="text" id="c-subject" required class="input-field" placeholder="e.g., History">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Grade</label>
+              <input type="text" id="c-grade" required class="input-field" placeholder="Grade 10">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Language</label>
+              <input type="text" id="c-language" class="input-field" value="English">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Topic</label>
+            <input type="text" id="c-topic" required class="input-field" placeholder="e.g., World War II causes">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Difficulty</label>
+            <select id="c-difficulty" class="input-field">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+          <button type="submit" id="cgen-btn" class="btn-primary w-full justify-center py-3" style="background: linear-gradient(135deg, #10b981, #0d9488);">
+            <span id="cgen-text">✨ Generate Content</span>
+            <span id="cgen-spinner" class="hidden">
+              <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Generating...
+            </span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="lg:col-span-3">
+      <div id="content-placeholder" class="card h-full flex flex-col items-center justify-center text-center py-16 border-2 border-dashed border-gray-200 dark:border-gray-700">
+        <div class="text-5xl mb-4">✨</div>
+        <p class="text-gray-500 font-medium">Generated content will appear here</p>
+      </div>
+      <div id="content-result" class="hidden card">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="font-semibold text-gray-800 dark:text-white" id="c-result-title">Content</h3>
+            <p class="text-xs text-gray-500" id="c-result-meta"></p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="copyContent()" class="btn-secondary text-xs">📋 Copy</button>
+            <button onclick="window.print()" class="btn-secondary text-xs">🖨️ Print</button>
+          </div>
+        </div>
+        <div id="content-output" class="prose dark:prose-invert max-w-none text-sm whitespace-pre-wrap text-gray-700 dark:text-gray-300"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  requireAuth();
+
+  document.getElementById('content-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('cgen-btn');
+    const spinner = document.getElementById('cgen-spinner');
+    const text = document.getElementById('cgen-text');
+
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
+    text.classList.add('hidden');
+
+    const contentType = document.querySelector('input[name="content_type"]:checked').value;
+    const payload = {
+      content_type: contentType,
+      subject: document.getElementById('c-subject').value,
+      grade: document.getElementById('c-grade').value,
+      topic: document.getElementById('c-topic').value,
+      difficulty: document.getElementById('c-difficulty').value,
+      language: document.getElementById('c-language').value,
+    };
+
+    const data = await apiPost('/api/v1/ai/content/', payload);
+    btn.disabled = false;
+    spinner.classList.add('hidden');
+    text.classList.remove('hidden');
+
+    if (data) {
+      document.getElementById('content-placeholder').classList.add('hidden');
+      document.getElementById('content-result').classList.remove('hidden');
+      document.getElementById('c-result-title').textContent = `${data.content_type.replace('_', ' ')} — ${data.topic}`;
+      document.getElementById('c-result-meta').textContent = `${data.subject} · ${data.grade} · ${data.language}`;
+      document.getElementById('content-output').textContent = data.content;
+    } else {
+      showToast('Failed to generate content', 'error');
+    }
+  });
+
+  function copyContent() {
+    const text = document.getElementById('content-output').textContent;
+    navigator.clipboard.writeText(text).then(() => showToast('Copied!', 'success'));
+  }
+</script>
+{% endblock %}

@@ -74,7 +74,7 @@ class AIService:
         return self._client
 
     def _get_cache_key(self, prompt: str) -> str:
-        return f"ai_response_{hashlib.md5(prompt.encode()).hexdigest()}"
+        return f"ai_response_{hashlib.sha256(prompt.encode()).hexdigest()}"
 
     def generate(self, prompt: str, use_cache: bool = True) -> str:
         if not self.api_key or not self.client:

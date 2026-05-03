@@ -26,15 +26,15 @@
       <div class="mb-6">
         <label class="block text-sm font-medium text-indigo-100 mb-3">I am a...</label>
         <div class="grid grid-cols-3 gap-3" id="role-selector">
-          <button type="button" onclick="selectRole('teacher')" class="role-btn active-role p-3 rounded-xl border-2 border-indigo-400 bg-indigo-500/20 text-center transition-all">
+          <button type="button" onclick="selectRole('teacher', this)" class="role-btn active-role p-3 rounded-xl border-2 border-indigo-400 bg-indigo-500/20 text-center transition-all">
             <div class="text-2xl mb-1">👨‍🏫</div>
             <div class="text-xs font-medium text-white">Teacher</div>
           </button>
-          <button type="button" onclick="selectRole('student')" class="role-btn p-3 rounded-xl border-2 border-white/20 bg-white/5 text-center transition-all hover:border-white/40">
+          <button type="button" onclick="selectRole('student', this)" class="role-btn p-3 rounded-xl border-2 border-white/20 bg-white/5 text-center transition-all hover:border-white/40">
             <div class="text-2xl mb-1">👨‍🎓</div>
             <div class="text-xs font-medium text-white">Student</div>
           </button>
-          <button type="button" onclick="selectRole('admin')" class="role-btn p-3 rounded-xl border-2 border-white/20 bg-white/5 text-center transition-all hover:border-white/40">
+          <button type="button" onclick="selectRole('admin', this)" class="role-btn p-3 rounded-xl border-2 border-white/20 bg-white/5 text-center transition-all hover:border-white/40">
             <div class="text-2xl mb-1">🏫</div>
             <div class="text-xs font-medium text-white">Admin</div>
           </button>
@@ -89,14 +89,14 @@
   </div>
 
   <script>
-    function selectRole(role) {
+    function selectRole(role, btn) {
       document.getElementById('selected-role').value = role;
-      document.querySelectorAll('.role-btn').forEach(btn => {
-        btn.classList.remove('border-indigo-400', 'bg-indigo-500/20');
-        btn.classList.add('border-white/20', 'bg-white/5');
+      document.querySelectorAll('.role-btn').forEach(b => {
+        b.classList.remove('border-indigo-400', 'bg-indigo-500/20');
+        b.classList.add('border-white/20', 'bg-white/5');
       });
-      event.currentTarget.classList.add('border-indigo-400', 'bg-indigo-500/20');
-      event.currentTarget.classList.remove('border-white/20', 'bg-white/5');
+      btn.classList.add('border-indigo-400', 'bg-indigo-500/20');
+      btn.classList.remove('border-white/20', 'bg-white/5');
     }
 
     document.getElementById('register-form').addEventListener('submit', async (e) => {

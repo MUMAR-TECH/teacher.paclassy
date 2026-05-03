@@ -3,9 +3,9 @@
  * Core JS utilities: auth, API helpers, toast notifications
  */
 
-const TOKEN_KEY = 'paclassy_access';
-const REFRESH_KEY = 'paclassy_refresh';
-const USER_KEY = 'paclassy_user';
+const TOKEN_KEY = 'access_token';
+const REFRESH_KEY = 'refresh_token';
+const USER_KEY = 'user';
 
 /* ─── Auth ─────────────────────────────────────────────────── */
 function getToken() { return localStorage.getItem(TOKEN_KEY); }

@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Assessment Generator — Paclassy{% endblock %}
+{% block page_title %}AI Assessment Generator{% endblock %}
+{% block sidebar_color %}bg-gradient-to-b from-indigo-800 to-indigo-900{% endblock %}
+
+{% block sidebar_nav %}
+<a href="/dashboard/teacher/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">🏠</span><span x-show="sidebarOpen">Dashboard</span>
+</a>
+<a href="/ai/lesson-planner/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">📋</span><span x-show="sidebarOpen">Lesson Planner</span>
+</a>
+<a href="/ai/assessment-generator/" class="sidebar-link active text-white">
+  <span class="text-lg">📝</span><span x-show="sidebarOpen">Assessments</span>
+</a>
+<a href="/ai/content-generator/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">✨</span><span x-show="sidebarOpen">Content Generator</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-2xl">📝</div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white">AI Assessment Generator</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Create quizzes, tests and exams automatically</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <div class="lg:col-span-2">
+      <div class="card">
+        <h3 class="font-semibold text-gray-800 dark:text-white mb-4">Assessment Settings</h3>
+        <form id="assessment-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Title</label>
+            <input type="text" id="a-title" required class="input-field" placeholder="e.g., Chapter 5 Quiz">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Subject</label>
+            <input type="text" id="a-subject" required class="input-field" placeholder="e.g., Mathematics">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Grade</label>
+              <input type="text" id="a-grade" required class="input-field" placeholder="Grade 9">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Questions</label>
+              <input type="number" id="a-num" class="input-field" value="10" min="1" max="50">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Type</label>
+            <select id="a-type" class="input-field">
+              <option value="mcq">Multiple Choice (MCQ)</option>
+              <option value="theory">Theory Questions</option>
+              <option value="practical">Practical</option>
+              <option value="mixed">Mixed</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Difficulty</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" onclick="setDifficulty('easy')" id="diff-easy" class="diff-btn py-2 px-3 rounded-lg border-2 border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-xs font-medium text-emerald-700 dark:text-emerald-300 transition-all">Easy</button>
+              <button type="button" onclick="setDifficulty('medium')" id="diff-medium" class="diff-btn py-2 px-3 rounded-lg border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/20 text-xs font-medium text-amber-700 dark:text-amber-300 transition-all opacity-50">Medium</button>
+              <button type="button" onclick="setDifficulty('hard')" id="diff-hard" class="diff-btn py-2 px-3 rounded-lg border-2 border-red-400 bg-red-50 dark:bg-red-900/20 text-xs font-medium text-red-700 dark:text-red-300 transition-all opacity-50">Hard</button>
+            </div>
+            <input type="hidden" id="a-difficulty" value="easy">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Topic (optional)</label>
+            <input type="text" id="a-topic" class="input-field" placeholder="Specific topic focus">
+          </div>
+          <button type="submit" id="gen-btn" class="btn-primary w-full justify-center py-3">
+            <span id="gen-text">✨ Generate Assessment</span>
+            <span id="gen-spinner" class="hidden">
+              <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Generating...
+            </span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="lg:col-span-3">
+      <div id="result-placeholder" class="card h-full flex flex-col items-center justify-center text-center py-16 border-2 border-dashed border-gray-200 dark:border-gray-700">
+        <div class="text-5xl mb-4">📝</div>
+        <p class="text-gray-500 font-medium">Generated assessment will appear here</p>
+        <p class="text-sm text-gray-400 mt-1">Fill in the form and click Generate</p>
+      </div>
+      <div id="result-content" class="hidden card">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="font-semibold text-gray-800 dark:text-white" id="r-title">Assessment</h3>
+            <p class="text-xs text-gray-500" id="r-meta"></p>
+          </div>
+          <button onclick="printAssessment()" class="btn-secondary text-xs">🖨️ Print</button>
+        </div>
+        <div id="questions-output" class="space-y-4"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  requireAuth();
+
+  function setDifficulty(level) {
+    document.getElementById('a-difficulty').value = level;
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.add('opacity-50'));
+    document.getElementById('diff-' + level).classList.remove('opacity-50');
+  }
+
+  document.getElementById('assessment-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('gen-btn');
+    const spinner = document.getElementById('gen-spinner');
+    const genText = document.getElementById('gen-text');
+
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
+    genText.classList.add('hidden');
+
+    const payload = {
+      title: document.getElementById('a-title').value,
+      subject: document.getElementById('a-subject').value,
+      grade: document.getElementById('a-grade').value,
+      assessment_type: document.getElementById('a-type').value,
+      num_questions: parseInt(document.getElementById('a-num').value),
+      difficulty: document.getElementById('a-difficulty').value,
+      topic: document.getElementById('a-topic').value || undefined,
+    };
+
+    const data = await apiPost('/api/v1/ai/assessments/', payload);
+    btn.disabled = false;
+    spinner.classList.add('hidden');
+    genText.classList.remove('hidden');
+
+    if (data) {
+      displayAssessment(data);
+    } else {
+      showToast('Failed to generate assessment', 'error');
+    }
+  });
+
+  function displayAssessment(data) {
+    document.getElementById('result-placeholder').classList.add('hidden');
+    document.getElementById('result-content').classList.remove('hidden');
+    document.getElementById('r-title').textContent = data.title;
+    document.getElementById('r-meta').textContent = `${data.subject} · ${data.grade} · ${data.num_questions} questions · ${data.total_marks} marks`;
+
+    const questions = data.questions || [];
+    const container = document.getElementById('questions-output');
+    if (!questions.length) {
+      container.innerHTML = '<p class="text-gray-500 text-sm">No questions generated.</p>';
+      return;
+    }
+
+    container.innerHTML = questions.map((q, i) => {
+      let optionsHtml = '';
+      if (q.options) {
+        optionsHtml = `<div class="mt-3 grid grid-cols-2 gap-2">
+          ${Object.entries(q.options).map(([k, v]) => `
+            <div class="flex items-center gap-2 p-2 rounded-lg ${k === q.correct_answer ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-300 dark:border-emerald-700' : 'bg-gray-50 dark:bg-gray-700/50'}">
+              <span class="w-6 h-6 rounded-full ${k === q.correct_answer ? 'bg-emerald-500 text-white' : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'} flex items-center justify-center text-xs font-bold flex-shrink-0">${k}</span>
+              <span class="text-xs text-gray-700 dark:text-gray-300">${v}</span>
+            </div>
+          `).join('')}
+        </div>`;
+      }
+      return `
+        <div class="p-4 border border-gray-200 dark:border-gray-700 rounded-xl">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-start gap-2 flex-1">
+              <span class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">${i+1}</span>
+              <p class="text-sm text-gray-800 dark:text-white">${q.question}</p>
+            </div>
+            <span class="badge bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex-shrink-0">${q.marks || 1} mark${(q.marks || 1) !== 1 ? 's' : ''}</span>
+          </div>
+          ${optionsHtml}
+          ${q.explanation ? `<p class="mt-2 text-xs text-indigo-600 dark:text-indigo-400 p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">💡 ${q.explanation}</p>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  function printAssessment() { window.print(); }
+</script>
+{% endblock %}

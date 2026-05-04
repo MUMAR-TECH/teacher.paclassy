@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Tutor — Paclassy{% endblock %}
+{% block page_title %}AI Tutor{% endblock %}
+{% block sidebar_color %}bg-gradient-to-b from-indigo-800 to-indigo-900{% endblock %}
+
+{% block sidebar_nav %}
+<a href="/dashboard/teacher/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">🏠</span><span x-show="sidebarOpen">Dashboard</span>
+</a>
+<a href="/ai/tutor/" class="sidebar-link active text-white">
+  <span class="text-lg">🤖</span><span x-show="sidebarOpen">AI Tutor</span>
+</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  .chat-bubble { max-width: 80%; }
+  .chat-bubble.user { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+  .chat-bubble.assistant { @apply bg-white dark:bg-gray-800; }
+  #chat-messages::-webkit-scrollbar { width: 4px; }
+  #chat-messages::-webkit-scrollbar-track { background: transparent; }
+  #chat-messages::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto h-full flex flex-col" style="height: calc(100vh - 140px)">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-2xl">🤖</div>
+      <div>
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">AI Tutor</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400" id="session-info">Start a new session below</p>
+      </div>
+    </div>
+    <button onclick="newSession()" class="btn-secondary">+ New Session</button>
+  </div>
+
+  <!-- Session Setup (shown when no active session) -->
+  <div id="session-setup" class="card mb-4">
+    <h3 class="font-medium text-gray-800 dark:text-white mb-3">Start AI Tutor Session</h3>
+    <div class="grid grid-cols-2 gap-3 mb-3">
+      <div>
+        <label class="block text-xs text-gray-500 mb-1">Subject</label>
+        <input type="text" id="tutor-subject" class="input-field" placeholder="e.g., Mathematics">
+      </div>
+      <div>
+        <label class="block text-xs text-gray-500 mb-1">Grade</label>
+        <input type="text" id="tutor-grade" class="input-field" placeholder="e.g., Grade 9">
+      </div>
+    </div>
+    <button onclick="startSession()" class="btn-primary">🚀 Start Session</button>
+  </div>
+
+  <!-- Chat Interface -->
+  <div id="chat-interface" class="hidden flex-1 card flex flex-col" style="min-height: 0;">
+    <!-- Messages -->
+    <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2" style="min-height: 0; max-height: 50vh;">
+      <div class="text-center py-8">
+        <div class="text-4xl mb-3">🤖</div>
+        <p class="text-gray-500 text-sm">Hi! I'm your AI Tutor. Ask me anything about your subject!</p>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+      <input type="text" id="chat-input" class="input-field flex-1" placeholder="Ask a question..." 
+        onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }">
+      <button onclick="sendMessage()" id="send-btn"
+        class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl font-medium text-sm transition-all flex items-center gap-2 flex-shrink-0">
+        <span id="send-text">Send</span>
+        <span id="send-spinner" class="hidden">
+          <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  requireAuth();
+  let currentSession = null;
+
+  async function startSession() {
+    const subject = document.getElementById('tutor-subject').value.trim();
+    const grade = document.getElementById('tutor-grade').value.trim();
+    if (!subject || !grade) { showToast('Please enter subject and grade', 'error'); return; }
+
+    const data = await apiPost('/api/v1/ai/tutor/sessions/', { subject, grade });
+    if (data) {
+      currentSession = data;
+      document.getElementById('session-setup').classList.add('hidden');
+      document.getElementById('chat-interface').classList.remove('hidden');
+      document.getElementById('session-info').textContent = `${subject} · ${grade} · Session #${data.id}`;
+      showToast('Session started!', 'success');
+    }
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg || !currentSession) return;
+
+    input.value = '';
+    appendMessage('user', msg);
+
+    const sendBtn = document.getElementById('send-btn');
+    const sendText = document.getElementById('send-text');
+    const sendSpinner = document.getElementById('send-spinner');
+    sendBtn.disabled = true;
+    sendText.classList.add('hidden');
+    sendSpinner.classList.remove('hidden');
+
+    // Show typing indicator
+    const typingId = 'typing-' + Date.now();
+    appendTyping(typingId);
+
+    const data = await apiPost(`/api/v1/ai/tutor/sessions/${currentSession.id}/chat/`, { message: msg });
+
+    document.getElementById(typingId)?.remove();
+    sendBtn.disabled = false;
+    sendText.classList.remove('hidden');
+    sendSpinner.classList.add('hidden');
+
+    if (data) {
+      appendMessage('assistant', data.message);
+    } else {
+      appendMessage('assistant', 'Sorry, I had trouble responding. Please try again.');
+    }
+  }
+
+  function appendMessage(role, content) {
+    const container = document.getElementById('chat-messages');
+    const isUser = role === 'user';
+    const div = document.createElement('div');
+    div.className = `flex ${isUser ? 'justify-end' : 'justify-start'} gap-3`;
+    div.innerHTML = `
+      ${!isUser ? '<div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg flex-shrink-0 mt-1">🤖</div>' : ''}
+      <div class="chat-bubble ${role} rounded-2xl px-4 py-3 shadow-sm ${isUser ? 'text-white' : 'bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700'}">
+        <p class="text-sm whitespace-pre-wrap">${escapeHtml(content)}</p>
+      </div>
+      ${isUser ? '<div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-sm flex-shrink-0 mt-1" id="header-avatar-initial2">U</div>' : ''}
+    `;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function appendTyping(id) {
+    const container = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.id = id;
+    div.className = 'flex justify-start gap-3';
+    div.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg flex-shrink-0">🤖</div>
+      <div class="bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 rounded-2xl px-4 py-3">
+        <div class="flex gap-1 items-center h-4">
+          <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0s"></div>
+          <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.15s"></div>
+          <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.3s"></div>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function newSession() {
+    currentSession = null;
+    document.getElementById('session-setup').classList.remove('hidden');
+    document.getElementById('chat-interface').classList.add('hidden');
+    document.getElementById('chat-messages').innerHTML = `
+      <div class="text-center py-8">
+        <div class="text-4xl mb-3">🤖</div>
+        <p class="text-gray-500 text-sm">Hi! I'm your AI Tutor. Ask me anything about your subject!</p>
+      </div>`;
+  }
+</script>
+{% endblock %}

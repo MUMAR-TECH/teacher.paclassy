@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard — Paclassy{% endblock %}
+{% block page_title %}My Dashboard{% endblock %}
+{% block sidebar_color %}bg-gradient-to-b from-blue-700 to-blue-900{% endblock %}
+
+{% block sidebar_nav %}
+<a href="/dashboard/student/" class="sidebar-link active text-white">
+  <span class="text-lg">🏠</span><span x-show="sidebarOpen">Dashboard</span>
+</a>
+<a href="/ai/tutor/" class="sidebar-link text-blue-200 hover:text-white">
+  <span class="text-lg">🤖</span><span x-show="sidebarOpen">AI Tutor</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div id="auth-guard" class="hidden">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Hello, <span id="student-name">Student</span>! 📚</h2>
+    <p class="text-gray-500 dark:text-gray-400 mt-1">Track your progress and learning journey</p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+    <div class="card">
+      <div class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-xl mb-3">📝</div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white" id="stat-submissions">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Submissions</p>
+    </div>
+    <div class="card">
+      <div class="w-11 h-11 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-xl mb-3">✅</div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white" id="stat-graded">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Graded</p>
+    </div>
+    <div class="card">
+      <div class="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center text-xl mb-3">⭐</div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white" id="stat-avg">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Avg. Score</p>
+    </div>
+    <div class="card">
+      <div class="w-11 h-11 rounded-xl bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center text-xl mb-3">📅</div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white" id="stat-attendance">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Attendance Rate</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-semibold text-gray-800 dark:text-white">My Submissions</h3>
+    </div>
+    <div id="submissions-list" class="space-y-3">
+      <div class="animate-pulse space-y-2">
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  requireAuth();
+  const user = getUser();
+  if (user) {
+    document.getElementById('student-name').textContent = user.first_name || user.username;
+    document.getElementById('auth-guard').classList.remove('hidden');
+  }
+
+  apiGet('/api/v1/analytics/student/').then(data => {
+    if (data) {
+      document.getElementById('stat-submissions').textContent = data.total_submissions ?? 0;
+      document.getElementById('stat-graded').textContent = data.graded_submissions ?? 0;
+      document.getElementById('stat-avg').textContent = data.average_score ? data.average_score : 'N/A';
+      document.getElementById('stat-attendance').textContent = data.attendance_rate ? data.attendance_rate + '%' : '0%';
+    }
+  });
+
+  apiGet('/api/v1/assessments/submissions/').then(data => {
+    const container = document.getElementById('submissions-list');
+    const items = data?.results || data || [];
+    if (!items.length) {
+      container.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">No submissions yet.</p>';
+      return;
+    }
+    container.innerHTML = items.slice(0, 5).map(s => `
+      <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+        <div>
+          <p class="text-sm font-medium text-gray-800 dark:text-white">Assessment #${s.assessment}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">${new Date(s.submitted_at).toLocaleDateString()}</p>
+        </div>
+        <span class="badge ${s.is_graded ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}">${s.is_graded ? 'Score: ' + s.score : 'Pending'}</span>
+      </div>
+    `).join('');
+  });
+</script>
+{% endblock %}

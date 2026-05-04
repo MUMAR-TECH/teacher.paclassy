@@ -1,0 +1,76 @@
+/* Paclassy — custom.css */
+
+/* ── Root Variables ─────────────────────────────────────────── */
+:root {
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --sidebar-width: 240px;
+  --sidebar-width-collapsed: 64px;
+  --header-height: 64px;
+  --radius: 12px;
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-elevated: 0 4px 12px -2px rgb(0 0 0 / 0.1);
+}
+
+/* ── Custom Scrollbar ───────────────────────────────────────── */
+* { scrollbar-width: thin; scrollbar-color: #e2e8f0 transparent; }
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
+.dark *::-webkit-scrollbar-thumb { background: #374151; }
+
+/* ── Utility Classes ────────────────────────────────────────── */
+.card {
+  @apply bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700;
+}
+.btn-primary {
+  @apply inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 
+    hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl font-medium text-sm 
+    transition-all shadow-sm hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed;
+}
+.btn-secondary {
+  @apply inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 
+    hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 
+    rounded-xl font-medium text-sm transition-all;
+}
+.input-field {
+  @apply w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 
+    bg-white dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-400 
+    focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent 
+    transition-all text-sm;
+}
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+.sidebar-link {
+  @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium 
+    transition-all hover:bg-white/10 cursor-pointer;
+}
+.sidebar-link.active { @apply bg-white/20; }
+
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fade-in 0.25s ease-out; }
+
+@keyframes slide-in-right { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+.slide-in { animation: slide-in-right 0.2s ease-out; }
+
+/* ── Print Styles ───────────────────────────────────────────── */
+@media print {
+  nav, aside, header, button, .no-print { display: none !important; }
+  .card { box-shadow: none; border: 1px solid #e5e7eb; }
+  body { background: white; }
+}
+
+/* ── AI Typing Indicator ─────────────────────────────────────── */
+.typing-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #94a3b8;
+  animation: typing-bounce 1s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.30s; }
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}

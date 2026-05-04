@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Dashboard — Paclassy{% endblock %}
+{% block page_title %}Teacher Dashboard{% endblock %}
+{% block sidebar_color %}bg-gradient-to-b from-indigo-800 to-indigo-900{% endblock %}
+
+{% block sidebar_nav %}
+<a href="/dashboard/teacher/" class="sidebar-link active text-white">
+  <span class="text-lg">🏠</span>
+  <span x-show="sidebarOpen">Dashboard</span>
+</a>
+<a href="/ai/lesson-planner/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">📋</span>
+  <span x-show="sidebarOpen">Lesson Planner</span>
+</a>
+<a href="/ai/assessment-generator/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">📝</span>
+  <span x-show="sidebarOpen">Assessments</span>
+</a>
+<a href="/ai/content-generator/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">✨</span>
+  <span x-show="sidebarOpen">Content Generator</span>
+</a>
+<a href="/ai/tutor/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">🤖</span>
+  <span x-show="sidebarOpen">AI Tutor</span>
+</a>
+<div class="pt-4 pb-2 px-1" x-show="sidebarOpen">
+  <p class="text-xs font-medium text-indigo-400 uppercase tracking-wider">School</p>
+</div>
+<a href="/school/attendance/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">✅</span>
+  <span x-show="sidebarOpen">Attendance</span>
+</a>
+<a href="/school/timetable/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">🗓️</span>
+  <span x-show="sidebarOpen">Timetable</span>
+</a>
+<a href="/school/students/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">👥</span>
+  <span x-show="sidebarOpen">Students</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div id="auth-guard" class="hidden">
+  <!-- Greeting -->
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Good morning, <span id="teacher-name">Teacher</span>! 👋</h2>
+    <p class="text-gray-500 dark:text-gray-400 mt-1">Here's what's happening in your classroom today</p>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+    <div class="card group hover:shadow-md transition-shadow">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-11 h-11 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-xl">📋</div>
+        <span class="badge bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">AI</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white" id="stat-lesson-plans">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Lesson Plans</p>
+    </div>
+    <div class="card group hover:shadow-md transition-shadow">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-11 h-11 rounded-xl bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center text-xl">📝</div>
+        <span class="badge bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300">AI</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white" id="stat-assessments">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Assessments</p>
+    </div>
+    <div class="card group hover:shadow-md transition-shadow">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-11 h-11 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-xl">📊</div>
+      </div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white" id="stat-submissions">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Submissions</p>
+    </div>
+    <div class="card group hover:shadow-md transition-shadow">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center text-xl">⭐</div>
+      </div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white" id="stat-avg-score">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Avg. Score</p>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Quick Actions</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <a href="/ai/lesson-planner/" class="card flex items-center gap-4 hover:shadow-md transition-all group cursor-pointer border-2 border-transparent hover:border-indigo-200 dark:hover:border-indigo-700">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-2xl flex-shrink-0">📋</div>
+        <div>
+          <p class="font-semibold text-gray-800 dark:text-white text-sm">Generate Lesson Plan</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">AI-powered curriculum</p>
+        </div>
+      </a>
+      <a href="/ai/assessment-generator/" class="card flex items-center gap-4 hover:shadow-md transition-all cursor-pointer border-2 border-transparent hover:border-purple-200 dark:hover:border-purple-700">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-2xl flex-shrink-0">📝</div>
+        <div>
+          <p class="font-semibold text-gray-800 dark:text-white text-sm">Create Assessment</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">MCQ, theory, practical</p>
+        </div>
+      </a>
+      <a href="/ai/content-generator/" class="card flex items-center gap-4 hover:shadow-md transition-all cursor-pointer border-2 border-transparent hover:border-emerald-200 dark:hover:border-emerald-700">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl flex-shrink-0">✨</div>
+        <div>
+          <p class="font-semibold text-gray-800 dark:text-white text-sm">Generate Content</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">Notes, worksheets</p>
+        </div>
+      </a>
+      <a href="/school/attendance/" class="card flex items-center gap-4 hover:shadow-md transition-all cursor-pointer border-2 border-transparent hover:border-amber-200 dark:hover:border-amber-700">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-2xl flex-shrink-0">✅</div>
+        <div>
+          <p class="font-semibold text-gray-800 dark:text-white text-sm">Take Attendance</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">Mark today's attendance</p>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Recent Lesson Plans -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold text-gray-800 dark:text-white">Recent Lesson Plans</h3>
+        <a href="/ai/lesson-planner/" class="text-xs text-indigo-600 dark:text-indigo-400 font-medium hover:underline">View all →</a>
+      </div>
+      <div id="recent-lessons" class="space-y-3">
+        <div class="animate-pulse space-y-2">
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold text-gray-800 dark:text-white">Recent Assessments</h3>
+        <a href="/ai/assessment-generator/" class="text-xs text-indigo-600 dark:text-indigo-400 font-medium hover:underline">View all →</a>
+      </div>
+      <div id="recent-assessments" class="space-y-3">
+        <div class="animate-pulse space-y-2">
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  requireAuth();
+  const user = getUser();
+  if (user) {
+    document.getElementById('teacher-name').textContent = user.first_name || user.username;
+    document.getElementById('auth-guard').classList.remove('hidden');
+  }
+
+  // Load analytics
+  apiGet('/api/v1/analytics/teacher/').then(data => {
+    if (data) {
+      document.getElementById('stat-lesson-plans').textContent = data.lesson_plans_created ?? 0;
+      document.getElementById('stat-assessments').textContent = data.assessments_created ?? 0;
+      document.getElementById('stat-submissions').textContent = data.total_submissions ?? 0;
+      document.getElementById('stat-avg-score').textContent = data.average_score ? data.average_score + '%' : 'N/A';
+    }
+  });
+
+  // Load recent lesson plans
+  apiGet('/api/v1/ai/lesson-plans/').then(data => {
+    const container = document.getElementById('recent-lessons');
+    if (!data || data.length === 0) {
+      container.innerHTML = '<p class="text-sm text-gray-400 dark:text-gray-500 text-center py-4">No lesson plans yet. <a href="/ai/lesson-planner/" class="text-indigo-500 hover:underline">Create one →</a></p>';
+      return;
+    }
+    const items = (data.results || data).slice(0, 4);
+    container.innerHTML = items.map(p => `
+      <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+        <div>
+          <p class="text-sm font-medium text-gray-800 dark:text-white">${p.title}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">${p.subject} · Grade ${p.grade}</p>
+        </div>
+        <span class="badge bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">${p.duration}min</span>
+      </div>
+    `).join('');
+  });
+
+  // Load recent assessments
+  apiGet('/api/v1/ai/assessments/').then(data => {
+    const container = document.getElementById('recent-assessments');
+    if (!data || data.length === 0) {
+      container.innerHTML = '<p class="text-sm text-gray-400 dark:text-gray-500 text-center py-4">No assessments yet. <a href="/ai/assessment-generator/" class="text-indigo-500 hover:underline">Create one →</a></p>';
+      return;
+    }
+    const items = (data.results || data).slice(0, 4);
+    const diffColors = { easy: 'bg-emerald-100 text-emerald-700', medium: 'bg-amber-100 text-amber-700', hard: 'bg-red-100 text-red-700' };
+    container.innerHTML = items.map(a => `
+      <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+        <div>
+          <p class="text-sm font-medium text-gray-800 dark:text-white">${a.title}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">${a.subject} · ${a.num_questions}Q · ${a.total_marks} marks</p>
+        </div>
+        <span class="badge ${diffColors[a.difficulty] || 'bg-gray-100 text-gray-700'}">${a.difficulty}</span>
+      </div>
+    `).join('');
+  });
+</script>
+{% endblock %}

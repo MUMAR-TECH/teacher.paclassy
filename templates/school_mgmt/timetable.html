@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Timetable — Paclassy{% endblock %}
+{% block page_title %}Class Timetable{% endblock %}
+{% block sidebar_color %}bg-gradient-to-b from-indigo-800 to-indigo-900{% endblock %}
+
+{% block sidebar_nav %}
+<a href="/dashboard/teacher/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">🏠</span><span x-show="sidebarOpen">Dashboard</span>
+</a>
+<a href="/school/attendance/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">✅</span><span x-show="sidebarOpen">Attendance</span>
+</a>
+<a href="/school/timetable/" class="sidebar-link active text-white">
+  <span class="text-lg">🗓️</span><span x-show="sidebarOpen">Timetable</span>
+</a>
+<a href="/school/students/" class="sidebar-link text-indigo-200 hover:text-white">
+  <span class="text-lg">👥</span><span x-show="sidebarOpen">Students</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div>
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center text-2xl">🗓️</div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white">Timetable</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Weekly class schedule</p>
+    </div>
+  </div>
+
+  <div class="card overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-gray-200 dark:border-gray-700">
+          <th class="text-left py-3 px-4 font-semibold text-gray-500 dark:text-gray-400 w-24">Time</th>
+          <th class="text-center py-3 px-3 font-semibold text-gray-500 dark:text-gray-400">Monday</th>
+          <th class="text-center py-3 px-3 font-semibold text-gray-500 dark:text-gray-400">Tuesday</th>
+          <th class="text-center py-3 px-3 font-semibold text-gray-500 dark:text-gray-400">Wednesday</th>
+          <th class="text-center py-3 px-3 font-semibold text-gray-500 dark:text-gray-400">Thursday</th>
+          <th class="text-center py-3 px-3 font-semibold text-gray-500 dark:text-gray-400">Friday</th>
+        </tr>
+      </thead>
+      <tbody id="timetable-body">
+        <tr>
+          <td colspan="6" class="text-center py-12 text-gray-400">
+            <div class="text-4xl mb-2">🗓️</div>
+            <p>Loading timetable...</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-6 card">
+    <h3 class="font-semibold text-gray-800 dark:text-white mb-4">All Timetable Entries</h3>
+    <div id="timetable-list" class="space-y-2"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  requireAuth();
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+  const dayColors = {
+    monday: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300',
+    tuesday: 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300',
+    wednesday: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300',
+    thursday: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300',
+    friday: 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300',
+  };
+
+  apiGet('/api/v1/school-mgmt/timetable/').then(data => {
+    const items = data?.results || data || [];
+    const tbody = document.getElementById('timetable-body');
+    const list = document.getElementById('timetable-list');
+
+    if (!items.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-gray-400">No timetable entries yet.</td></tr>';
+      list.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">No entries.</p>';
+      return;
+    }
+
+    // Group by time slots
+    const timeSlots = [...new Set(items.map(i => i.start_time))].sort();
+    const byDayTime = {};
+    items.forEach(item => {
+      const key = `${item.day}_${item.start_time}`;
+      byDayTime[key] = item;
+    });
+
+    tbody.innerHTML = timeSlots.map(time => `
+      <tr class="border-b border-gray-100 dark:border-gray-800">
+        <td class="py-3 px-4 text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">${time}</td>
+        ${days.map(day => {
+          const entry = byDayTime[`${day}_${time}`];
+          return `<td class="py-2 px-2 text-center">
+            ${entry ? `<div class="p-2 rounded-lg ${dayColors[day]} text-xs"><p class="font-medium">${entry.subject}</p><p class="opacity-70 mt-0.5">${entry.room || 'Room ?'}</p></div>` : ''}
+          </td>`;
+        }).join('')}
+      </tr>
+    `).join('');
+
+    list.innerHTML = items.map(e => `
+      <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+        <div class="flex items-center gap-3">
+          <span class="badge ${dayColors[e.day] || 'bg-gray-100 text-gray-600'} capitalize">${e.day}</span>
+          <div>
+            <p class="text-sm font-medium text-gray-800 dark:text-white">${e.subject}</p>
+            <p class="text-xs text-gray-500">${e.start_time} – ${e.end_time} ${e.room ? '· ' + e.room : ''}</p>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  });
+</script>
+{% endblock %}

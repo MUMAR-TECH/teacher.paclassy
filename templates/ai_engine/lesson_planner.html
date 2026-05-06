@@ -116,7 +116,7 @@
 
 {% block extra_scripts %}
 <script>
-  
+  requireRole('teacher');
 
   let currentLesson = null;
 
@@ -196,8 +196,7 @@
   }
 
   function loadPreviousPlans() {
-    requireRole('teacher');
-  apiGet('/api/v1/ai/lesson-plans/').then(data => {
+    apiGet('/api/v1/ai/lesson-plans/').then(data => {
       const container = document.getElementById('previous-plans');
       const items = data?.results || data || [];
       if (!items.length) {

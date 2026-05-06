@@ -89,3 +89,39 @@ class AITutorSession(models.Model):
 
     class Meta:
         ordering = ['-updated_at']
+
+
+class TeacherAgentSession(models.Model):
+    teacher = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='teacher_agent_sessions')
+    school = models.ForeignKey(
+        'schools.School', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='teacher_agent_sessions',
+    )
+    title = models.CharField(max_length=200, blank=True, default='')
+    messages = models.JSONField(default=list)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Teacher Agent: {self.teacher.username}"
+
+    class Meta:
+        ordering = ['-updated_at']
+
+
+class AdminAgentSession(models.Model):
+    admin = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='admin_agent_sessions')
+    school = models.ForeignKey(
+        'schools.School', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='admin_agent_sessions',
+    )
+    title = models.CharField(max_length=200, blank=True, default='')
+    messages = models.JSONField(default=list)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Admin Agent: {self.admin.username}"
+
+    class Meta:
+        ordering = ['-updated_at']

@@ -123,7 +123,7 @@
 
 {% block extra_scripts %}
 <script>
-  requireAuth();
+  requireRole('teacher');
 
   document.getElementById('content-form').addEventListener('submit', async (e) => {
     e.preventDefault();

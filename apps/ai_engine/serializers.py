@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import LessonPlan, Assessment, GeneratedContent, AITutorSession
+from .models import LessonPlan, Assessment, GeneratedContent, AITutorSession, TeacherAgentSession, AdminAgentSession
 
 
 class LessonPlanSerializer(serializers.ModelSerializer):
@@ -70,4 +70,22 @@ class AITutorSessionSerializer(serializers.ModelSerializer):
 
 
 class TutorChatSerializer(serializers.Serializer):
+    message = serializers.CharField()
+
+
+class TeacherAgentSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeacherAgentSession
+        fields = ['id', 'teacher', 'school', 'title', 'messages', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'teacher', 'school', 'messages', 'created_at', 'updated_at']
+
+
+class AdminAgentSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdminAgentSession
+        fields = ['id', 'admin', 'school', 'title', 'messages', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'admin', 'school', 'messages', 'created_at', 'updated_at']
+
+
+class AgentChatSerializer(serializers.Serializer):
     message = serializers.CharField()

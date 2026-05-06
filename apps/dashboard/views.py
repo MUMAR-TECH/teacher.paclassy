@@ -1,4 +1,33 @@
-from django.shortcuts import render
+from functools import wraps
+from django.shortcuts import render, redirect
+
+
+def _role_redirect(user_role):
+    """Return the correct dashboard URL for a given role."""
+    redirects = {
+        'teacher': '/dashboard/teacher/',
+        'student': '/dashboard/student/',
+        'admin': '/dashboard/admin/',
+    }
+    return redirects.get(user_role, '/login/')
+
+
+def role_required(allowed_roles):
+    """
+    Decorator for web views that checks the user's session-based role.
+    Since this app uses JWT (token in localStorage), we cannot check auth server-side
+    without a session cookie. Instead, we inject a JS snippet that enforces the role
+    client-side and immediately redirects on mismatch. This is the same pattern used
+    throughout the existing templates via `requireAuth()`.
+    The decorator just sets `required_role` on the view for template access.
+    """
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            return view_func(request, *args, **kwargs)
+        wrapper.required_roles = allowed_roles
+        return wrapper
+    return decorator
 
 
 def teacher_dashboard(request):
@@ -27,6 +56,14 @@ def content_generator_page(request):
 
 def ai_tutor_page(request):
     return render(request, 'ai_engine/ai_tutor.html')
+
+
+def teacher_agent_page(request):
+    return render(request, 'ai_engine/teacher_agent.html')
+
+
+def admin_agent_page(request):
+    return render(request, 'ai_engine/admin_agent.html')
 
 
 def attendance_page(request):

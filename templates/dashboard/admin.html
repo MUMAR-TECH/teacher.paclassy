@@ -2,21 +2,92 @@
 
 {% block title %}Admin Dashboard — Paclassy{% endblock %}
 {% block page_title %}School Overview{% endblock %}
-{% block sidebar_color %}bg-gradient-to-b from-emerald-700 to-emerald-900{% endblock %}
+{% block sidebar_color %}bg-gradient-to-b from-emerald-900 to-emerald-950{% endblock %}
 
 {% block sidebar_nav %}
-<a href="/dashboard/admin/" class="sidebar-link active text-white">
-  <span class="text-lg">🏠</span><span x-show="sidebarOpen">Dashboard</span>
+<a href="/dashboard/admin/" class="sidebar-link active">
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+  <span x-show="sidebarOpen">Dashboard</span>
 </a>
-<a href="/school/students/" class="sidebar-link text-emerald-200 hover:text-white">
-  <span class="text-lg">👥</span><span x-show="sidebarOpen">Students</span>
+<div class="pt-4 pb-1.5 px-1" x-show="sidebarOpen">
+  <p class="text-[10px] font-bold text-emerald-400/70 uppercase tracking-widest">Management</p>
+</div>
+<a href="/school/students/" class="sidebar-link">
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+  <span x-show="sidebarOpen">Students</span>
 </a>
-<a href="/school/attendance/" class="sidebar-link text-emerald-200 hover:text-white">
-  <span class="text-lg">✅</span><span x-show="sidebarOpen">Attendance</span>
+<a href="/school/attendance/" class="sidebar-link">
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
+  <span x-show="sidebarOpen">Attendance</span>
 </a>
-<a href="/school/timetable/" class="sidebar-link text-emerald-200 hover:text-white">
-  <span class="text-lg">🗓️</span><span x-show="sidebarOpen">Timetable</span>
+<a href="/school/timetable/" class="sidebar-link">
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+  <span x-show="sidebarOpen">Timetable</span>
 </a>
+{% endblock %}
+
+{% block content %}
+<div id="auth-guard" class="hidden">
+  <div class="mb-6">
+    <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white">School Overview</h2>
+    <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Monitor your school's performance and activity</p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
+    <div class="card card-hover">
+      <div class="stat-icon bg-emerald-100 dark:bg-emerald-900/50 mb-4">
+        <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
+      <p class="text-3xl font-extrabold text-gray-900 dark:text-white" id="stat-teachers">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Teachers</p>
+    </div>
+    <div class="card card-hover">
+      <div class="stat-icon bg-blue-100 dark:bg-blue-900/50 mb-4">
+        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+      </div>
+      <p class="text-3xl font-extrabold text-gray-900 dark:text-white" id="stat-students">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Students</p>
+    </div>
+    <div class="card card-hover">
+      <div class="stat-icon bg-purple-100 dark:bg-purple-900/50 mb-4">
+        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/></svg>
+      </div>
+      <p class="text-3xl font-extrabold text-gray-900 dark:text-white" id="stat-assessments">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Assessments</p>
+    </div>
+    <div class="card card-hover">
+      <div class="stat-icon bg-amber-100 dark:bg-amber-900/50 mb-4">
+        <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+      </div>
+      <p class="text-3xl font-extrabold text-gray-900 dark:text-white" id="stat-attendance">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">Attendance Rate</p>
+    </div>
+    <div class="card card-hover">
+      <div class="stat-icon bg-indigo-100 dark:bg-indigo-900/50 mb-4">
+        <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z"/></svg>
+      </div>
+      <p class="text-3xl font-extrabold text-gray-900 dark:text-white" id="stat-credits">—</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">AI Credits</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  requireAuth();
+  document.getElementById('auth-guard').classList.remove('hidden');
+
+  apiGet('/api/v1/analytics/admin/').then(data => {
+    if (data) {
+      document.getElementById('stat-teachers').textContent = data.total_teachers ?? 0;
+      document.getElementById('stat-students').textContent = data.total_students ?? 0;
+      document.getElementById('stat-assessments').textContent = data.total_assessments ?? 0;
+      document.getElementById('stat-attendance').textContent = (data.attendance_rate ?? 0) + '%';
+      document.getElementById('stat-credits').textContent = data.ai_credits_remaining ?? 0;
+    }
+  });
+</script>
 {% endblock %}
 
 {% block content %}

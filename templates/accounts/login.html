@@ -3,44 +3,101 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — Paclassy</title>
+  <title>Sign In — Paclassy</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>body { font-family: 'Inter', sans-serif; }</style>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    @keyframes float { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(3deg); } }
+    @keyframes float2 { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(20px) rotate(-4deg); } }
+    .blob1 { animation: float 8s ease-in-out infinite; }
+    .blob2 { animation: float2 10s ease-in-out infinite; }
+    .blob3 { animation: float 12s ease-in-out infinite 2s; }
+    .glass-card {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .input-auth {
+      width: 100%; padding: 12px 16px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 12px; color: white; font-size: 0.9rem;
+      transition: all 0.2s; outline: none;
+    }
+    .input-auth:focus {
+      border-color: rgba(129,140,248,0.8);
+      background: rgba(255,255,255,0.12);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+    }
+    .input-auth::placeholder { color: rgba(255,255,255,0.35); }
+    .feature-chip {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+  </style>
 </head>
-<body class="h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-indigo-800 flex items-center justify-center p-4">
-  <div class="w-full max-w-md">
-    <!-- Logo/Brand -->
+<body class="min-h-full bg-gradient-to-br from-slate-900 via-indigo-950 to-violet-950 flex items-center justify-center p-4 relative overflow-hidden">
+  <!-- Animated background blobs -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="blob1 absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
+    <div class="blob2 absolute top-1/3 -right-32 w-80 h-80 bg-violet-600/20 rounded-full blur-3xl"></div>
+    <div class="blob3 absolute -bottom-32 left-1/4 w-72 h-72 bg-blue-600/15 rounded-full blur-3xl"></div>
+    <!-- Grid overlay -->
+    <div class="absolute inset-0" style="background-image: linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px); background-size: 40px 40px;"></div>
+  </div>
+
+  <div class="w-full max-w-md relative z-10">
+    <!-- Brand -->
     <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur rounded-2xl mb-4">
-        <span class="text-4xl">🎓</span>
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl mb-4 shadow-lg shadow-indigo-500/30">
+        <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
+        </svg>
       </div>
-      <h1 class="text-3xl font-bold text-white">Paclassy</h1>
-      <p class="text-indigo-200 mt-1">AI-Powered Teacher Assistant</p>
+      <h1 class="text-3xl font-extrabold text-white tracking-tight">Paclassy</h1>
+      <p class="text-indigo-300 mt-1.5 text-sm font-medium">AI-Powered Education Platform</p>
     </div>
 
     <!-- Login Card -->
-    <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl">
-      <h2 class="text-xl font-semibold text-white mb-6">Welcome back 👋</h2>
+    <div class="glass-card rounded-3xl p-8">
+      <div class="mb-6">
+        <h2 class="text-xl font-bold text-white">Welcome back</h2>
+        <p class="text-indigo-200/70 text-sm mt-1">Sign in to your account to continue</p>
+      </div>
 
-      <div id="error-msg" class="hidden mb-4 p-3 bg-red-500/20 border border-red-400/30 rounded-xl text-red-200 text-sm"></div>
+      <div id="error-msg" class="hidden mb-5 p-3.5 bg-red-500/15 border border-red-400/25 rounded-xl text-red-200 text-sm flex items-start gap-2">
+        <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+        <span id="error-text"></span>
+      </div>
 
       <form id="login-form" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-indigo-100 mb-1.5">Username</label>
-          <input type="text" id="username" required
-            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent text-sm"
-            placeholder="Enter your username">
+          <label class="block text-xs font-semibold text-indigo-200 mb-2 uppercase tracking-wider">Username</label>
+          <div class="relative">
+            <svg class="w-4 h-4 text-white/30 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+            <input type="text" id="username" required autocomplete="username"
+              class="input-auth pl-11" placeholder="Enter your username">
+          </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-indigo-100 mb-1.5">Password</label>
-          <input type="password" id="password" required
-            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent text-sm"
-            placeholder="Enter your password">
+          <label class="block text-xs font-semibold text-indigo-200 mb-2 uppercase tracking-wider">Password</label>
+          <div class="relative">
+            <svg class="w-4 h-4 text-white/30 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+            <input type="password" id="password" required autocomplete="current-password"
+              class="input-auth pl-11 pr-12" placeholder="Enter your password">
+            <button type="button" id="toggle-pw" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors">
+              <svg id="eye-show" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <svg id="eye-hide" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
+            </button>
+          </div>
         </div>
 
         <button type="submit" id="login-btn"
-          class="w-full py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 mt-2">
+          class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2.5 mt-2 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-0.5 active:translate-y-0">
           <span id="btn-text">Sign In</span>
           <span id="btn-spinner" class="hidden">
             <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
@@ -51,38 +108,55 @@
         </button>
       </form>
 
-      <div class="mt-6 text-center">
-        <p class="text-indigo-200 text-sm">
+      <div class="mt-6 pt-5 border-t border-white/10 text-center">
+        <p class="text-indigo-200/70 text-sm">
           Don't have an account?
-          <a href="/register/" class="text-white font-semibold hover:text-indigo-200 transition-colors">Create one →</a>
+          <a href="/register/" class="text-white font-semibold hover:text-indigo-200 transition-colors ml-1">Create one →</a>
         </p>
       </div>
     </div>
 
-    <!-- Features preview -->
-    <div class="mt-8 grid grid-cols-3 gap-3 text-center">
-      <div class="bg-white/5 rounded-xl p-3">
-        <div class="text-2xl mb-1">🤖</div>
-        <div class="text-xs text-indigo-200">AI Lesson Plans</div>
+    <!-- Feature chips -->
+    <div class="mt-6 grid grid-cols-3 gap-2.5">
+      <div class="feature-chip">
+        <svg class="w-4 h-4 text-indigo-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+        <span class="text-xs text-indigo-200 font-medium">AI Plans</span>
       </div>
-      <div class="bg-white/5 rounded-xl p-3">
-        <div class="text-2xl mb-1">📊</div>
-        <div class="text-xs text-indigo-200">Smart Analytics</div>
+      <div class="feature-chip">
+        <svg class="w-4 h-4 text-violet-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+        <span class="text-xs text-indigo-200 font-medium">Analytics</span>
       </div>
-      <div class="bg-white/5 rounded-xl p-3">
-        <div class="text-2xl mb-1">📝</div>
-        <div class="text-xs text-indigo-200">Auto Grading</div>
+      <div class="feature-chip">
+        <svg class="w-4 h-4 text-blue-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
+        <span class="text-xs text-indigo-200 font-medium">Auto Grade</span>
       </div>
     </div>
   </div>
 
   <script>
+    // Password toggle
+    document.getElementById('toggle-pw').addEventListener('click', () => {
+      const pw = document.getElementById('password');
+      const show = document.getElementById('eye-show');
+      const hide = document.getElementById('eye-hide');
+      if (pw.type === 'password') {
+        pw.type = 'text';
+        show.classList.add('hidden');
+        hide.classList.remove('hidden');
+      } else {
+        pw.type = 'password';
+        show.classList.remove('hidden');
+        hide.classList.add('hidden');
+      }
+    });
+
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('login-btn');
       const spinner = document.getElementById('btn-spinner');
       const btnText = document.getElementById('btn-text');
       const errMsg = document.getElementById('error-msg');
+      const errText = document.getElementById('error-text');
 
       btn.disabled = true;
       spinner.classList.remove('hidden');
@@ -114,11 +188,11 @@
           window.location.href = redirectMap[role] || '/dashboard/teacher/';
         } else {
           const msg = data.non_field_errors?.[0] || data.detail || 'Login failed. Please check your credentials.';
-          errMsg.textContent = msg;
+          errText.textContent = msg;
           errMsg.classList.remove('hidden');
         }
       } catch (err) {
-        errMsg.textContent = 'Network error. Please try again.';
+        errText.textContent = 'Network error. Please try again.';
         errMsg.classList.remove('hidden');
       } finally {
         btn.disabled = false;

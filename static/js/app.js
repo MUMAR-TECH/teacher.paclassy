@@ -145,4 +145,5 @@ document.addEventListener('DOMContentLoaded', () => {
   if (getById('sidebar-username')) getById('sidebar-username').textContent = name;
   if (getById('sidebar-role')) getById('sidebar-role').textContent = role;
   if (getById('sidebar-avatar-initial')) getById('sidebar-avatar-initial').textContent = initial;
+  if (getById('user-avatar-initial')) getById('user-avatar-initial').textContent = initial;
 });

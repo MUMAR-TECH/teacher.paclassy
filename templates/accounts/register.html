@@ -3,40 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register — Paclassy</title>
+  <title>Create Account — Paclassy</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>body { font-family: 'Inter', sans-serif; }</style>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    @keyframes float { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(3deg); } }
+    @keyframes float2 { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(20px) rotate(-4deg); } }
+    .blob1 { animation: float 8s ease-in-out infinite; }
+    .blob2 { animation: float2 10s ease-in-out infinite; }
+    .blob3 { animation: float 12s ease-in-out infinite 2s; }
+    .glass-card {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .input-auth {
+      width: 100%; padding: 11px 14px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 11px; color: white; font-size: 0.875rem;
+      transition: all 0.2s; outline: none;
+    }
+    .input-auth:focus {
+      border-color: rgba(129,140,248,0.8);
+      background: rgba(255,255,255,0.12);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+    }
+    .input-auth::placeholder { color: rgba(255,255,255,0.35); }
+    .role-card {
+      padding: 12px; border-radius: 12px; text-align: center; cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      transition: all 0.2s;
+    }
+    .role-card:hover { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.1); }
+    .role-card.selected { border-color: #818cf8; background: rgba(99,102,241,0.2); box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+  </style>
 </head>
-<body class="min-h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-indigo-800 flex items-center justify-center p-4 py-10">
-  <div class="w-full max-w-lg">
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur rounded-2xl mb-4">
-        <span class="text-4xl">🎓</span>
+<body class="min-h-full bg-gradient-to-br from-slate-900 via-indigo-950 to-violet-950 flex items-center justify-center p-4 py-10 relative overflow-hidden">
+  <!-- Animated background blobs -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="blob1 absolute -top-32 -right-32 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl"></div>
+    <div class="blob2 absolute top-1/2 -left-32 w-80 h-80 bg-indigo-600/20 rounded-full blur-3xl"></div>
+    <div class="blob3 absolute -bottom-32 right-1/4 w-72 h-72 bg-blue-600/15 rounded-full blur-3xl"></div>
+    <div class="absolute inset-0" style="background-image: linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px); background-size: 40px 40px;"></div>
+  </div>
+
+  <div class="w-full max-w-lg relative z-10">
+    <!-- Brand -->
+    <div class="text-center mb-7">
+      <div class="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl mb-3 shadow-lg shadow-indigo-500/30">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
+        </svg>
       </div>
-      <h1 class="text-3xl font-bold text-white">Join Paclassy</h1>
-      <p class="text-indigo-200 mt-1">Create your free account today</p>
+      <h1 class="text-2xl font-extrabold text-white">Join Paclassy</h1>
+      <p class="text-indigo-300 mt-1 text-sm">Create your free account today</p>
     </div>
 
-    <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl">
-      <div id="error-msg" class="hidden mb-4 p-3 bg-red-500/20 border border-red-400/30 rounded-xl text-red-200 text-sm"></div>
-      <div id="success-msg" class="hidden mb-4 p-3 bg-green-500/20 border border-green-400/30 rounded-xl text-green-200 text-sm"></div>
+    <div class="glass-card rounded-3xl p-8">
+      <div id="error-msg" class="hidden mb-4 p-3.5 bg-red-500/15 border border-red-400/25 rounded-xl text-red-200 text-sm flex items-start gap-2">
+        <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+        <span id="error-text"></span>
+      </div>
+      <div id="success-msg" class="hidden mb-4 p-3.5 bg-emerald-500/15 border border-emerald-400/25 rounded-xl text-emerald-200 text-sm flex items-center gap-2">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span id="success-text"></span>
+      </div>
 
       <!-- Role selector -->
       <div class="mb-6">
-        <label class="block text-sm font-medium text-indigo-100 mb-3">I am a...</label>
+        <label class="block text-xs font-semibold text-indigo-200 mb-3 uppercase tracking-wider">I am a...</label>
         <div class="grid grid-cols-3 gap-3" id="role-selector">
-          <button type="button" onclick="selectRole('teacher', this)" class="role-btn active-role p-3 rounded-xl border-2 border-indigo-400 bg-indigo-500/20 text-center transition-all">
-            <div class="text-2xl mb-1">👨‍🏫</div>
-            <div class="text-xs font-medium text-white">Teacher</div>
+          <button type="button" onclick="selectRole('teacher', this)" class="role-card selected">
+            <div class="text-2xl mb-1.5">👨‍🏫</div>
+            <div class="text-xs font-semibold text-white">Teacher</div>
           </button>
-          <button type="button" onclick="selectRole('student', this)" class="role-btn p-3 rounded-xl border-2 border-white/20 bg-white/5 text-center transition-all hover:border-white/40">
-            <div class="text-2xl mb-1">👨‍🎓</div>
-            <div class="text-xs font-medium text-white">Student</div>
+          <button type="button" onclick="selectRole('student', this)" class="role-card">
+            <div class="text-2xl mb-1.5">👨‍🎓</div>
+            <div class="text-xs font-semibold text-white">Student</div>
           </button>
-          <button type="button" onclick="selectRole('admin', this)" class="role-btn p-3 rounded-xl border-2 border-white/20 bg-white/5 text-center transition-all hover:border-white/40">
-            <div class="text-2xl mb-1">🏫</div>
-            <div class="text-xs font-medium text-white">Admin</div>
+          <button type="button" onclick="selectRole('admin', this)" class="role-card">
+            <div class="text-2xl mb-1.5">🏫</div>
+            <div class="text-xs font-semibold text-white">Admin</div>
           </button>
         </div>
         <input type="hidden" id="selected-role" value="teacher">
@@ -45,33 +96,35 @@
       <form id="register-form" class="space-y-4">
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-indigo-100 mb-1.5">First Name</label>
-            <input type="text" id="first_name" class="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm" placeholder="First name">
+            <label class="block text-xs font-semibold text-indigo-200 mb-1.5 uppercase tracking-wider">First Name</label>
+            <input type="text" id="first_name" class="input-auth" placeholder="First name" autocomplete="given-name">
           </div>
           <div>
-            <label class="block text-xs font-medium text-indigo-100 mb-1.5">Last Name</label>
-            <input type="text" id="last_name" class="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm" placeholder="Last name">
+            <label class="block text-xs font-semibold text-indigo-200 mb-1.5 uppercase tracking-wider">Last Name</label>
+            <input type="text" id="last_name" class="input-auth" placeholder="Last name" autocomplete="family-name">
           </div>
         </div>
         <div>
-          <label class="block text-xs font-medium text-indigo-100 mb-1.5">Username</label>
-          <input type="text" id="username" required class="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm" placeholder="Choose a username">
+          <label class="block text-xs font-semibold text-indigo-200 mb-1.5 uppercase tracking-wider">Username</label>
+          <input type="text" id="username" required class="input-auth" placeholder="Choose a username" autocomplete="username">
         </div>
         <div>
-          <label class="block text-xs font-medium text-indigo-100 mb-1.5">Email</label>
-          <input type="email" id="email" required class="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm" placeholder="your@email.com">
+          <label class="block text-xs font-semibold text-indigo-200 mb-1.5 uppercase tracking-wider">Email</label>
+          <input type="email" id="email" required class="input-auth" placeholder="your@email.com" autocomplete="email">
         </div>
-        <div>
-          <label class="block text-xs font-medium text-indigo-100 mb-1.5">Password</label>
-          <input type="password" id="password" required minlength="8" class="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm" placeholder="Minimum 8 characters">
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-indigo-100 mb-1.5">Confirm Password</label>
-          <input type="password" id="password2" required minlength="8" class="w-full px-3 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm" placeholder="Repeat password">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-indigo-200 mb-1.5 uppercase tracking-wider">Password</label>
+            <input type="password" id="password" required minlength="8" class="input-auth" placeholder="Min 8 characters" autocomplete="new-password">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-indigo-200 mb-1.5 uppercase tracking-wider">Confirm</label>
+            <input type="password" id="password2" required minlength="8" class="input-auth" placeholder="Repeat password" autocomplete="new-password">
+          </div>
         </div>
 
         <button type="submit" id="register-btn"
-          class="w-full py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 mt-2">
+          class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2.5 mt-2 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-0.5 active:translate-y-0">
           <span id="btn-text">Create Account</span>
           <span id="btn-spinner" class="hidden">
             <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
@@ -82,8 +135,11 @@
         </button>
       </form>
 
-      <div class="mt-5 text-center">
-        <p class="text-indigo-200 text-sm">Already have an account? <a href="/login/" class="text-white font-semibold hover:text-indigo-200">Sign in →</a></p>
+      <div class="mt-5 pt-4 border-t border-white/10 text-center">
+        <p class="text-indigo-200/70 text-sm">
+          Already have an account?
+          <a href="/login/" class="text-white font-semibold hover:text-indigo-200 ml-1">Sign in →</a>
+        </p>
       </div>
     </div>
   </div>
@@ -91,12 +147,8 @@
   <script>
     function selectRole(role, btn) {
       document.getElementById('selected-role').value = role;
-      document.querySelectorAll('.role-btn').forEach(b => {
-        b.classList.remove('border-indigo-400', 'bg-indigo-500/20');
-        b.classList.add('border-white/20', 'bg-white/5');
-      });
-      btn.classList.add('border-indigo-400', 'bg-indigo-500/20');
-      btn.classList.remove('border-white/20', 'bg-white/5');
+      document.querySelectorAll('.role-card').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
     }
 
     document.getElementById('register-form').addEventListener('submit', async (e) => {
@@ -105,7 +157,9 @@
       const spinner = document.getElementById('btn-spinner');
       const btnText = document.getElementById('btn-text');
       const errMsg = document.getElementById('error-msg');
+      const errText = document.getElementById('error-text');
       const successMsg = document.getElementById('success-msg');
+      const successText = document.getElementById('success-text');
 
       btn.disabled = true;
       spinner.classList.remove('hidden');
@@ -135,7 +189,7 @@
           localStorage.setItem('access_token', data.access);
           localStorage.setItem('refresh_token', data.refresh);
           localStorage.setItem('user', JSON.stringify(data.user));
-          successMsg.textContent = '✅ Account created! Redirecting...';
+          successText.textContent = 'Account created! Redirecting you now...';
           successMsg.classList.remove('hidden');
           const role = data.user.role;
           setTimeout(() => {
@@ -147,11 +201,11 @@
           for (const [field, errors] of Object.entries(data)) {
             msgs.push(Array.isArray(errors) ? errors.join(' ') : errors);
           }
-          errMsg.textContent = msgs.join(' ') || 'Registration failed.';
+          errText.textContent = msgs.join(' ') || 'Registration failed.';
           errMsg.classList.remove('hidden');
         }
       } catch (err) {
-        errMsg.textContent = 'Network error. Please try again.';
+        errText.textContent = 'Network error. Please try again.';
         errMsg.classList.remove('hidden');
       } finally {
         btn.disabled = false;

@@ -1,4 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.conf import settings
+from django.http import HttpResponseRedirect
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -6,6 +9,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 
+
+# ---------------------------------------------------------------------------
+# JWT / REST API views (used by the API endpoints)
+# ---------------------------------------------------------------------------
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -59,9 +66,46 @@ class MeView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
 
+# ---------------------------------------------------------------------------
+# Web / session-based views
+# ---------------------------------------------------------------------------
+
+def _redirect_by_role(request, role):
+    """Build a full redirect URL to the correct role subdomain dashboard."""
+    parent = getattr(settings, 'PARENT_HOST', 'localhost')
+    scheme = request.scheme
+    role_map = {
+        'teacher': f'{scheme}://teacher.{parent}/dashboard/',
+        'student': f'{scheme}://student.{parent}/dashboard/',
+        'admin': f'{scheme}://admin.{parent}/dashboard/',
+    }
+    return HttpResponseRedirect(role_map.get(role, '/login/'))
+
+
 def login_page(request):
-    return render(request, 'accounts/login.html')
+    """Session-based web login.  Redirects to the correct role subdomain on success."""
+    if request.user.is_authenticated:
+        return _redirect_by_role(request, request.user.role)
+
+    error = None
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        user = authenticate(request, username=username, password=password)
+        if user and user.is_active:
+            login(request, user)
+            return _redirect_by_role(request, user.role)
+        error = 'Invalid username or password. Please try again.'
+
+    return render(request, 'accounts/login.html', {'error': error})
 
 
 def register_page(request):
     return render(request, 'accounts/register.html')
+
+
+def web_logout_view(request):
+    """Logs the user out of the Django session and redirects to login."""
+    logout(request)
+    return redirect('login_page')
+

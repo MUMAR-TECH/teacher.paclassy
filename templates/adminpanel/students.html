@@ -1,0 +1,26 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block title %}Students — Paclassy{% endblock %}
+{% block page_title %}All Students{% endblock %}
+{% block nav_students %}active{% endblock %}
+
+{% block content %}
+<div>
+  <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-6">Student Management</h2>
+  <div class="card" id="students-card">
+    <p class="text-center text-gray-500 dark:text-gray-400 py-8">Loading students…</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  apiGet('/api/v1/schools/students/').then(data => {
+    const card = document.getElementById('students-card');
+    if (!data) return;
+    const rows = (data.results || data);
+    if (!rows.length) { card.innerHTML = '<p class="text-center text-gray-400 py-8">No students found.</p>'; return; }
+    card.innerHTML = `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b border-gray-200 dark:border-gray-700"><th class="pb-3 text-left text-xs font-semibold text-gray-500 uppercase">Name</th><th class="pb-3 text-left text-xs font-semibold text-gray-500 uppercase">Grade</th><th class="pb-3 text-left text-xs font-semibold text-gray-500 uppercase">Email</th><th class="pb-3 text-left text-xs font-semibold text-gray-500 uppercase">Enrolled</th></tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">${rows.map(s=>`<tr><td class="py-3 font-medium text-gray-800 dark:text-white">${escapeHtml(s.first_name||'')} ${escapeHtml(s.last_name||'')}</td><td class="py-3 text-gray-500">${escapeHtml(s.grade||s.student_profile?.grade||'—')}</td><td class="py-3 text-gray-500">${escapeHtml(s.email||'—')}</td><td class="py-3 text-gray-500">${s.date_joined?new Date(s.date_joined).toLocaleDateString():'—'}</td></tr>`).join('')}</tbody></table></div>`;
+  });
+</script>
+{% endblock %}

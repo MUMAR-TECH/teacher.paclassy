@@ -1,0 +1,26 @@
+{% extends 'teacher/base.html' %}
+
+{% block title %}Timetable — Paclassy{% endblock %}
+{% block page_title %}Timetable{% endblock %}
+{% block nav_timetable %}active{% endblock %}
+
+{% block content %}
+<div>
+  <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-6">Class Timetable</h2>
+  <div class="card" id="timetable-card">
+    <p class="text-center text-gray-500 dark:text-gray-400 py-8">Loading timetable…</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  apiGet('/api/v1/school-mgmt/timetable/').then(data => {
+    const card = document.getElementById('timetable-card');
+    if (!data) return;
+    const rows = (data.results || data);
+    if (!rows.length) { card.innerHTML = '<p class="text-center text-gray-400 py-8">No timetable entries found.</p>'; return; }
+    card.innerHTML = `<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b border-gray-200 dark:border-gray-700"><th class="pb-3 text-left text-xs font-semibold text-gray-500 uppercase">Day</th><th class="pb-3 text-left text-xs font-semibold text-gray-500 uppercase">Time</th><th class="pb-3 text-left text-xs font-semibold text-gray-500 uppercase">Subject</th><th class="pb-3 text-left text-xs font-semibold text-gray-500 uppercase">Class</th></tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">${rows.map(r=>`<tr><td class="py-3 font-medium text-gray-800 dark:text-white">${r.day_name||r.day||'—'}</td><td class="py-3 text-gray-500">${r.start_time||''}${r.end_time?' - '+r.end_time:''}</td><td class="py-3 text-gray-700 dark:text-gray-300">${r.subject||'—'}</td><td class="py-3 text-gray-500">${r.class_name||r.grade||'—'}</td></tr>`).join('')}</tbody></table></div>`;
+  });
+</script>
+{% endblock %}

@@ -7,6 +7,22 @@ const TOKEN_KEY = 'access_token';
 const REFRESH_KEY = 'refresh_token';
 const USER_KEY = 'user';
 
+/* ─── Security helpers ─────────────────────────────────────── */
+/**
+ * Escape a string for safe insertion into HTML contexts.
+ * Use whenever dynamically constructing innerHTML from untrusted data.
+ */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+
 /* ─── Auth ─────────────────────────────────────────────────── */
 function getToken() { return localStorage.getItem(TOKEN_KEY); }
 function getUser() {

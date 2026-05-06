@@ -1,0 +1,104 @@
+{% extends 'teacher/base.html' %}
+
+{% block title %}Content Generator — Paclassy{% endblock %}
+{% block page_title %}AI Content Generator{% endblock %}
+{% block nav_content %}active{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl">✨</div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white">AI Content Generator</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Generate teaching materials, notes, and worksheets</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <div class="lg:col-span-2">
+      <div class="card">
+        <h3 class="font-semibold text-gray-800 dark:text-white mb-4">Content Settings</h3>
+        <form id="content-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Topic</label>
+            <input type="text" id="c-topic" required class="input-field" placeholder="e.g., The Water Cycle">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Subject</label>
+            <input type="text" id="c-subject" required class="input-field" placeholder="e.g., Science">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Grade Level</label>
+            <input type="text" id="c-grade" required class="input-field" placeholder="e.g., Grade 7">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Content Type</label>
+            <select id="c-type" class="input-field">
+              <option value="notes">Study Notes</option>
+              <option value="worksheet">Worksheet</option>
+              <option value="summary">Summary</option>
+              <option value="flashcards">Flashcards</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Additional Instructions (optional)</label>
+            <textarea id="c-instructions" rows="3" class="input-field" placeholder="Any specific requirements..."></textarea>
+          </div>
+          <button type="submit" id="gen-btn" class="btn-primary w-full justify-center py-3">
+            <span id="gen-text">✨ Generate Content</span>
+            <span id="gen-spinner" class="hidden">
+              <svg class="animate-spin w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Generating...
+            </span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="lg:col-span-3">
+      <div id="result-placeholder" class="card h-full flex flex-col items-center justify-center text-center py-16 border-2 border-dashed border-gray-200 dark:border-gray-700">
+        <div class="text-5xl mb-4">📄</div>
+        <p class="text-gray-500 font-medium">Generated content will appear here</p>
+        <p class="text-sm text-gray-400 mt-1">Fill in the form and click Generate</p>
+      </div>
+      <div id="result-content" class="hidden card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-800 dark:text-white" id="r-title">Content</h3>
+          <button onclick="navigator.clipboard?.writeText(document.getElementById('content-output').innerText).then(()=>showToast('Copied!'))" class="btn-secondary text-xs">📋 Copy</button>
+        </div>
+        <div id="content-output" class="prose dark:prose-invert max-w-none text-sm space-y-4"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.getElementById('content-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('gen-btn');
+    const spinner = document.getElementById('gen-spinner');
+    const genText = document.getElementById('gen-text');
+    btn.disabled = true; spinner.classList.remove('hidden'); genText.classList.add('hidden');
+    const payload = {
+      topic: document.getElementById('c-topic').value,
+      subject: document.getElementById('c-subject').value,
+      grade: document.getElementById('c-grade').value,
+      content_type: document.getElementById('c-type').value,
+      instructions: document.getElementById('c-instructions').value || undefined,
+    };
+    const data = await apiPost('/api/v1/ai/content/', payload);
+    btn.disabled = false; spinner.classList.add('hidden'); genText.classList.remove('hidden');
+    if (data) {
+      document.getElementById('result-placeholder').classList.add('hidden');
+      document.getElementById('result-content').classList.remove('hidden');
+      document.getElementById('r-title').textContent = data.title || 'Generated Content';
+      document.getElementById('content-output').innerHTML = `<pre class="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">${data.content || JSON.stringify(data, null, 2)}</pre>`;
+    } else { showToast('Failed to generate content', 'error'); }
+  });
+</script>
+{% endblock %}

@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-in-production')
 DEBUG = False
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost 127.0.0.1').split()
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '.localhost 127.0.0.1').split()
 
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -17,6 +17,7 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 ]
 THIRD_PARTY_APPS = [
+    'django_hosts',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -31,10 +32,14 @@ LOCAL_APPS = [
     'apps.school_mgmt',
     'apps.analytics',
     'apps.dashboard',
+    'apps.teacher',
+    'apps.student',
+    'apps.adminpanel',
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
+    'django_hosts.middleware.HostsRequestMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -44,9 +49,24 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'apps.schools.middleware.TenantMiddleware',
+    'apps.accounts.middleware.RoleSubdomainMiddleware',
+    'django_hosts.middleware.HostsResponseMiddleware',
 ]
 
 ROOT_URLCONF = 'paclassy.urls'
+ROOT_HOSTCONF = 'paclassy.hosts'
+DEFAULT_HOST = 'root'
+
+# Parent hostname used for subdomain construction (override via env for production)
+PARENT_HOST = os.environ.get('PARENT_HOST', 'localhost')
+
+# Set to '.yourdomain.com' in production so session cookies are shared across subdomains
+# SESSION_COOKIE_DOMAIN must be set in production to share sessions across subdomains.
+# Use the leading-dot form, e.g. ".yourdomain.com", so teacher/student/admin subdomains
+# all share the same session. Set via the SESSION_COOKIE_DOMAIN environment variable.
+SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN', None)
+
+LOGIN_URL = '/login/'
 
 TEMPLATES = [
     {
@@ -59,6 +79,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.accounts.context_processors.user_role',
             ],
         },
     },

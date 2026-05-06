@@ -8,23 +8,14 @@ Verifies that:
 - Each role CAN access their own dashboard
 - Unauthenticated users are redirected to login
 """
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from apps.accounts.models import User
 
-TEACHER_HOST = 'teacher.localhost'
-STUDENT_HOST = 'student.localhost'
-ADMIN_HOST = 'admin.localhost'
 
-
-@override_settings(
-    PARENT_HOST='localhost',
-    ROOT_HOSTCONF='paclassy.hosts',
-    DEFAULT_HOST='root',
-)
 class RoleIsolationTests(TestCase):
     """
-    Verify strict subdomain role isolation enforced by
-    RoleSubdomainMiddleware + role_required decorator.
+    Verify strict path-based role isolation enforced by
+    RolePathMiddleware + role_required decorator.
     """
 
     def setUp(self):
@@ -46,34 +37,34 @@ class RoleIsolationTests(TestCase):
     # ---------------------------------------------------------------
 
     def test_unauthenticated_teacher_dashboard_redirects(self):
-        response = self.client.get('/dashboard/', HTTP_HOST=TEACHER_HOST)
+        response = self.client.get('/teacher/dashboard/')
         self.assertIn(response.status_code, [302, 301])
 
     def test_unauthenticated_student_dashboard_redirects(self):
-        response = self.client.get('/dashboard/', HTTP_HOST=STUDENT_HOST)
+        response = self.client.get('/student/dashboard/')
         self.assertIn(response.status_code, [302, 301])
 
     def test_unauthenticated_admin_dashboard_redirects(self):
-        response = self.client.get('/dashboard/', HTTP_HOST=ADMIN_HOST)
+        response = self.client.get('/admin_panel/dashboard/')
         self.assertIn(response.status_code, [302, 301])
 
     # ---------------------------------------------------------------
-    # Each role CAN access their own subdomain
+    # Each role CAN access their own section
     # ---------------------------------------------------------------
 
     def test_teacher_can_access_teacher_dashboard(self):
         self.client.force_login(self.teacher_user)
-        response = self.client.get('/dashboard/', HTTP_HOST=TEACHER_HOST)
+        response = self.client.get('/teacher/dashboard/')
         self.assertEqual(response.status_code, 200)
 
     def test_student_can_access_student_dashboard(self):
         self.client.force_login(self.student_user)
-        response = self.client.get('/dashboard/', HTTP_HOST=STUDENT_HOST)
+        response = self.client.get('/student/dashboard/')
         self.assertEqual(response.status_code, 200)
 
     def test_admin_can_access_admin_dashboard(self):
         self.client.force_login(self.admin_user)
-        response = self.client.get('/dashboard/', HTTP_HOST=ADMIN_HOST)
+        response = self.client.get('/admin_panel/dashboard/')
         self.assertEqual(response.status_code, 200)
 
     # ---------------------------------------------------------------
@@ -81,20 +72,19 @@ class RoleIsolationTests(TestCase):
     # ---------------------------------------------------------------
 
     def test_teacher_cannot_access_student_dashboard(self):
-        """Teacher visiting student.localhost/dashboard/ must be redirected."""
+        """Teacher visiting /student/dashboard/ must be redirected to /teacher/dashboard/."""
         self.client.force_login(self.teacher_user)
-        response = self.client.get('/dashboard/', HTTP_HOST=STUDENT_HOST)
-        # Middleware redirects or decorator returns 403
+        response = self.client.get('/student/dashboard/')
         self.assertIn(response.status_code, [302, 403])
         if response.status_code == 302:
-            self.assertIn('teacher.localhost', response['Location'])
+            self.assertIn('/teacher/', response['Location'])
 
     def test_teacher_cannot_access_admin_dashboard(self):
         self.client.force_login(self.teacher_user)
-        response = self.client.get('/dashboard/', HTTP_HOST=ADMIN_HOST)
+        response = self.client.get('/admin_panel/dashboard/')
         self.assertIn(response.status_code, [302, 403])
         if response.status_code == 302:
-            self.assertIn('teacher.localhost', response['Location'])
+            self.assertIn('/teacher/', response['Location'])
 
     # ---------------------------------------------------------------
     # Student CANNOT access teacher or admin routes
@@ -102,17 +92,17 @@ class RoleIsolationTests(TestCase):
 
     def test_student_cannot_access_teacher_dashboard(self):
         self.client.force_login(self.student_user)
-        response = self.client.get('/dashboard/', HTTP_HOST=TEACHER_HOST)
+        response = self.client.get('/teacher/dashboard/')
         self.assertIn(response.status_code, [302, 403])
         if response.status_code == 302:
-            self.assertIn('student.localhost', response['Location'])
+            self.assertIn('/student/', response['Location'])
 
     def test_student_cannot_access_admin_dashboard(self):
         self.client.force_login(self.student_user)
-        response = self.client.get('/dashboard/', HTTP_HOST=ADMIN_HOST)
+        response = self.client.get('/admin_panel/dashboard/')
         self.assertIn(response.status_code, [302, 403])
         if response.status_code == 302:
-            self.assertIn('student.localhost', response['Location'])
+            self.assertIn('/student/', response['Location'])
 
     # ---------------------------------------------------------------
     # Admin CANNOT access teacher or student routes
@@ -120,60 +110,57 @@ class RoleIsolationTests(TestCase):
 
     def test_admin_cannot_access_teacher_dashboard(self):
         self.client.force_login(self.admin_user)
-        response = self.client.get('/dashboard/', HTTP_HOST=TEACHER_HOST)
+        response = self.client.get('/teacher/dashboard/')
         self.assertIn(response.status_code, [302, 403])
         if response.status_code == 302:
-            self.assertIn('admin.localhost', response['Location'])
+            self.assertIn('/admin_panel/', response['Location'])
 
     def test_admin_cannot_access_student_dashboard(self):
         self.client.force_login(self.admin_user)
-        response = self.client.get('/dashboard/', HTTP_HOST=STUDENT_HOST)
+        response = self.client.get('/student/dashboard/')
         self.assertIn(response.status_code, [302, 403])
         if response.status_code == 302:
-            self.assertIn('admin.localhost', response['Location'])
+            self.assertIn('/admin_panel/', response['Location'])
 
     # ---------------------------------------------------------------
     # Teacher-specific AI tool routes are blocked for other roles
     # ---------------------------------------------------------------
 
     def test_student_cannot_access_lesson_planner(self):
-        """Lesson planner is teacher-only; student must get 403."""
+        """Lesson planner is teacher-only; student must be redirected."""
         self.client.force_login(self.student_user)
-        response = self.client.get('/ai/lesson-planner/', HTTP_HOST=TEACHER_HOST)
+        response = self.client.get('/teacher/ai/lesson-planner/')
         self.assertIn(response.status_code, [302, 403])
 
     def test_admin_cannot_access_lesson_planner(self):
         self.client.force_login(self.admin_user)
-        response = self.client.get('/ai/lesson-planner/', HTTP_HOST=TEACHER_HOST)
+        response = self.client.get('/teacher/ai/lesson-planner/')
         self.assertIn(response.status_code, [302, 403])
 
     # ---------------------------------------------------------------
-    # Session login redirects to correct subdomain
+    # Session login redirects to correct path section
     # ---------------------------------------------------------------
 
-    def test_login_redirects_teacher_to_teacher_subdomain(self):
+    def test_login_redirects_teacher_to_teacher_section(self):
         response = self.client.post(
             '/login/',
             {'username': 'teacher_test', 'password': 'testpass123'},
-            HTTP_HOST='localhost',
         )
         self.assertEqual(response.status_code, 302)
-        self.assertIn('teacher.localhost', response['Location'])
+        self.assertIn('/teacher/', response['Location'])
 
-    def test_login_redirects_student_to_student_subdomain(self):
+    def test_login_redirects_student_to_student_section(self):
         response = self.client.post(
             '/login/',
             {'username': 'student_test', 'password': 'testpass123'},
-            HTTP_HOST='localhost',
         )
         self.assertEqual(response.status_code, 302)
-        self.assertIn('student.localhost', response['Location'])
+        self.assertIn('/student/', response['Location'])
 
-    def test_login_redirects_admin_to_admin_subdomain(self):
+    def test_login_redirects_admin_to_admin_section(self):
         response = self.client.post(
             '/login/',
             {'username': 'admin_test', 'password': 'testpass123'},
-            HTTP_HOST='localhost',
         )
         self.assertEqual(response.status_code, 302)
-        self.assertIn('admin.localhost', response['Location'])
+        self.assertIn('/admin_panel/', response['Location'])

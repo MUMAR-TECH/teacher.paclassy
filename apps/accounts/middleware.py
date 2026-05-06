@@ -1,24 +1,27 @@
-from django.conf import settings
 from django.http import HttpResponseRedirect
 
-# Maps user roles to their expected subdomain
-ROLE_SUBDOMAIN_MAP = {
-    'teacher': 'teacher',
-    'student': 'student',
-    'admin': 'admin',
+# Maps role to its URL path prefix
+ROLE_PATH_MAP = {
+    'teacher': '/teacher/dashboard/',
+    'student': '/student/dashboard/',
+    'admin': '/admin_panel/dashboard/',
 }
 
-# The set of subdomains that are role-gated (www/root are open)
-ROLE_SUBDOMAINS = set(ROLE_SUBDOMAIN_MAP.values())
+# Path prefixes that are role-gated
+ROLE_PATH_PREFIXES = {
+    '/teacher/': 'teacher',
+    '/student/': 'student',
+    '/admin_panel/': 'admin',
+}
 
 
-class RoleSubdomainMiddleware:
+class RolePathMiddleware:
     """
-    Middleware that compares the current subdomain with the authenticated user's
-    role and redirects mismatches to the correct subdomain.
+    Middleware that checks if an authenticated user is accessing a path
+    that belongs to a different role, and redirects them to their own section.
 
-    Example: a logged-in teacher visiting student.domain.com is transparently
-    redirected to teacher.domain.com (preserving the request path).
+    Example: a logged-in teacher visiting /student/dashboard/ is transparently
+    redirected to /teacher/dashboard/ (preserving UX without a 403).
     """
 
     def __init__(self, get_response):
@@ -26,22 +29,12 @@ class RoleSubdomainMiddleware:
 
     def __call__(self, request):
         if request.user.is_authenticated:
-            current_subdomain = self._get_subdomain(request.get_host())
-            if current_subdomain in ROLE_SUBDOMAINS:
-                expected_subdomain = ROLE_SUBDOMAIN_MAP.get(request.user.role)
-                if expected_subdomain and current_subdomain != expected_subdomain:
-                    parent = getattr(settings, 'PARENT_HOST', 'localhost')
-                    qs = ('?' + request.META['QUERY_STRING']) if request.META.get('QUERY_STRING') else ''
-                    correct_url = (
-                        f"{request.scheme}://{expected_subdomain}.{parent}{request.path}{qs}"
-                    )
-                    return HttpResponseRedirect(correct_url)
+            path = request.path
+            for prefix, required_role in ROLE_PATH_PREFIXES.items():
+                if path.startswith(prefix):
+                    if request.user.role != required_role:
+                        correct_url = ROLE_PATH_MAP.get(request.user.role, '/login/')
+                        return HttpResponseRedirect(correct_url)
+                    break
 
         return self.get_response(request)
-
-    @staticmethod
-    def _get_subdomain(host):
-        """Extract the leftmost label from the host (strips port first)."""
-        host = host.split(':')[0]
-        parts = host.split('.')
-        return parts[0] if len(parts) >= 2 else None

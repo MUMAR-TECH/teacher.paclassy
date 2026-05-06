@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.conf import settings
 from django.http import HttpResponseRedirect
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -71,13 +70,11 @@ class MeView(generics.RetrieveUpdateAPIView):
 # ---------------------------------------------------------------------------
 
 def _redirect_by_role(request, role):
-    """Build a full redirect URL to the correct role subdomain dashboard."""
-    parent = getattr(settings, 'PARENT_HOST', 'localhost')
-    scheme = request.scheme
+    """Redirect to the correct role section dashboard."""
     role_map = {
-        'teacher': f'{scheme}://teacher.{parent}/dashboard/',
-        'student': f'{scheme}://student.{parent}/dashboard/',
-        'admin': f'{scheme}://admin.{parent}/dashboard/',
+        'teacher': '/teacher/dashboard/',
+        'student': '/student/dashboard/',
+        'admin': '/admin_panel/dashboard/',
     }
     return HttpResponseRedirect(role_map.get(role, '/login/'))
 

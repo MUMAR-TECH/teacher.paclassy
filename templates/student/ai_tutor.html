@@ -1,0 +1,85 @@
+{% extends 'student/base.html' %}
+
+{% block title %}AI Tutor — Paclassy{% endblock %}
+{% block page_title %}AI Study Assistant{% endblock %}
+{% block nav_tutor %}active{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto flex flex-col" style="height: calc(100vh - 128px);">
+  <div class="flex items-center gap-3 mb-4 flex-shrink-0">
+    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-2xl">🎓</div>
+    <div>
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white">AI Study Assistant</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Ask any question and get step-by-step explanations</p>
+    </div>
+  </div>
+
+  <div id="chat-container" class="flex-1 overflow-y-auto card mb-4 space-y-4 p-4">
+    <div class="flex items-start gap-3">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center flex-shrink-0 text-lg">🎓</div>
+      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-2xl rounded-tl-none px-4 py-3 max-w-lg">
+        <p class="text-sm text-gray-700 dark:text-gray-300">Hi {{ request.user.first_name|default:request.user.username }}! I'm your personal AI study assistant. Ask me any question — I'll explain it in a way that's easy to understand. What are you studying today?</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex gap-2 flex-shrink-0">
+    <input type="text" id="chat-input" class="input-field flex-1" placeholder="Ask anything about your studies…" autocomplete="off">
+    <button onclick="sendMessage()" class="btn-primary px-5">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+    </button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  const chatContainer = document.getElementById('chat-container');
+  const chatInput = document.getElementById('chat-input');
+
+  chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+
+  async function sendMessage() {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+    chatInput.value = '';
+    appendMessage('user', msg);
+    const typingId = appendTyping();
+    const data = await apiPost('/api/v1/ai/chat/', { message: msg, agent_type: 'student' });
+    removeTyping(typingId);
+    appendMessage('ai', data?.response || 'Sorry, I encountered an error. Please try again.');
+  }
+
+  function appendMessage(type, text) {
+    const isUser = type === 'user';
+    const div = document.createElement('div');
+    div.className = `flex items-start gap-3 ${isUser ? 'flex-row-reverse' : ''}`;
+    const bubble = document.createElement('div');
+    bubble.className = `${isUser ? 'bg-blue-500 text-white' : 'bg-blue-50 dark:bg-blue-900/20 text-gray-700 dark:text-gray-300'} rounded-2xl ${isUser ? 'rounded-tr-none' : 'rounded-tl-none'} px-4 py-3 max-w-lg`;
+    const p = document.createElement('p');
+    p.className = 'text-sm';
+    p.textContent = text;
+    bubble.appendChild(p);
+    const avatar = document.createElement('div');
+    avatar.className = `w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center text-sm font-bold ${isUser ? 'bg-blue-500 text-white' : 'bg-gradient-to-br from-blue-500 to-cyan-600 text-lg'}`;
+    avatar.textContent = isUser ? '{{ request.user.first_name|first|upper|default:"S" }}' : '🎓';
+    div.appendChild(avatar);
+    div.appendChild(bubble);
+    chatContainer.appendChild(div);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  function appendTyping() {
+    const id = 'typing-' + Date.now();
+    const div = document.createElement('div');
+    div.id = id;
+    div.className = 'flex items-start gap-3';
+    div.innerHTML = `<div class="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-lg flex-shrink-0">🎓</div><div class="bg-blue-50 dark:bg-blue-900/20 rounded-2xl rounded-tl-none px-4 py-3"><div class="flex gap-1 items-center h-5"><div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay:0ms"></div><div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay:150ms"></div><div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay:300ms"></div></div></div>`;
+    chatContainer.appendChild(div);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    return id;
+  }
+
+  function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
+</script>
+{% endblock %}

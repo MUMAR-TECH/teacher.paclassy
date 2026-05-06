@@ -216,6 +216,64 @@ class AIService:
         )
         return self.generate(prompt, use_cache=False)
 
+    def _chat_with_agent(self, messages, system_prompt):
+        """Shared chat logic for both teacher and admin agents."""
+        if not self.api_key:
+            return "AI Assistant is not configured. Please set GEMINI_API_KEY to enable this feature."
+
+        try:
+            model = self._build_chat_model(system_prompt)
+            if not model:
+                return "AI Assistant is not available. Please check that google-generativeai is installed."
+
+            role_map = {"assistant": "model", "user": "user"}
+            history = []
+            for msg in messages[:-1]:
+                role = role_map.get(msg["role"])
+                if role is None:
+                    logger.warning(
+                        "Skipping message with unsupported role '%s'.", msg["role"]
+                    )
+                    continue
+                history.append({"role": role, "parts": [msg["content"]]})
+            chat = model.start_chat(history=history)
+            last_message = messages[-1]["content"] if messages else ""
+            response = chat.send_message(
+                last_message,
+                generation_config={"temperature": 0.8},
+            )
+            return response.text
+        except Exception as e:
+            logger.error(f"Agent chat error: {e}")
+            return "I'm having trouble responding right now. Please try again later."
+
+    def chat_with_teacher_agent(self, messages, teacher_name, school_name, subjects, grades):
+        if not self.api_key:
+            return "Teacher Assistant is not configured. Please set GEMINI_API_KEY to enable this feature."
+
+        from .prompts import TEACHER_AGENT_SYSTEM_PROMPT
+        system_prompt = TEACHER_AGENT_SYSTEM_PROMPT.format(
+            teacher_name=teacher_name,
+            school_name=school_name or 'your school',
+            subjects=', '.join(subjects) if subjects else 'General',
+            grades=', '.join(grades) if grades else 'General',
+        )
+        return self._chat_with_agent(messages, system_prompt)
+
+    def chat_with_admin_agent(self, messages, admin_name, school_name, total_teachers, total_students, ai_credits):
+        if not self.api_key:
+            return "Admin Assistant is not configured. Please set GEMINI_API_KEY to enable this feature."
+
+        from .prompts import ADMIN_AGENT_SYSTEM_PROMPT
+        system_prompt = ADMIN_AGENT_SYSTEM_PROMPT.format(
+            admin_name=admin_name,
+            school_name=school_name or 'your school',
+            total_teachers=total_teachers,
+            total_students=total_students,
+            ai_credits=ai_credits,
+        )
+        return self._chat_with_agent(messages, system_prompt)
+
     def _parse_sections(self, content):
         sections = []
         current = {"title": "Introduction", "content": ""}

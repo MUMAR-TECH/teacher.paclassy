@@ -1,18 +1,25 @@
 {% extends 'base.html' %}
 
-{% block title %}AI Tutor — Paclassy{% endblock %}
-{% block page_title %}AI Tutor{% endblock %}
-{% block sidebar_color %}bg-gradient-to-b from-indigo-900 to-indigo-950{% endblock %}
+{% block title %}Study Assistant — Paclassy{% endblock %}
+{% block page_title %}Study Assistant{% endblock %}
+{% block sidebar_color %}bg-gradient-to-b from-blue-900 to-blue-950{% endblock %}
 
 {% block sidebar_nav %}
-<a href="/dashboard/teacher/" class="sidebar-link">
+<a href="/dashboard/student/" class="sidebar-link">
   <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
   <span x-show="sidebarOpen">Dashboard</span>
 </a>
 <div class="pt-4 pb-1.5 px-1" x-show="sidebarOpen">
-  <p class="text-[10px] font-bold text-indigo-400/70 uppercase tracking-widest">AI Tools</p>
+  <p class="text-[10px] font-bold text-blue-400/70 uppercase tracking-widest">My AI Agent</p>
 </div>
 <a href="/ai/tutor/" class="sidebar-link active">
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>
+  <span x-show="sidebarOpen">Study Assistant</span>
+</a>
+<div class="pt-4 pb-1.5 px-1" x-show="sidebarOpen">
+  <p class="text-[10px] font-bold text-blue-400/70 uppercase tracking-widest">Learning</p>
+</div>
+<a href="/ai/tutor/" class="sidebar-link">
   <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z"/></svg>
   <span x-show="sidebarOpen">AI Tutor</span>
 </a>
@@ -21,7 +28,7 @@
 {% block extra_head %}
 <style>
   .chat-bubble { max-width: 80%; }
-  .chat-bubble.user { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+  .chat-bubble.user { background: linear-gradient(135deg, #3b82f6, #6366f1); }
   .chat-bubble.assistant { @apply bg-white dark:bg-gray-800; }
   #chat-messages::-webkit-scrollbar { width: 4px; }
   #chat-messages::-webkit-scrollbar-track { background: transparent; }
@@ -34,10 +41,10 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-4">
     <div class="flex items-center gap-3">
-      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-2xl">🤖</div>
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-2xl">🎓</div>
       <div>
-        <h2 class="text-xl font-bold text-gray-800 dark:text-white">AI Tutor</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400" id="session-info">Start a new session below</p>
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">Study Assistant</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400" id="session-info">Your personal AI tutor — ask anything about your studies</p>
       </div>
     </div>
     <button onclick="newSession()" class="btn-secondary">+ New Session</button>
@@ -45,7 +52,7 @@
 
   <!-- Session Setup (shown when no active session) -->
   <div id="session-setup" class="card mb-4">
-    <h3 class="font-medium text-gray-800 dark:text-white mb-3">Start AI Tutor Session</h3>
+    <h3 class="font-medium text-gray-800 dark:text-white mb-3">Start a Study Session</h3>
     <div class="grid grid-cols-2 gap-3 mb-3">
       <div>
         <label class="block text-xs text-gray-500 mb-1">Subject</label>
@@ -56,7 +63,8 @@
         <input type="text" id="tutor-grade" class="input-field" placeholder="e.g., Grade 9">
       </div>
     </div>
-    <button onclick="startSession()" class="btn-primary">🚀 Start Session</button>
+    <p class="text-xs text-gray-400 dark:text-gray-500 mb-3">💡 Your Study Assistant will help you understand concepts, solve problems, and learn better.</p>
+    <button onclick="startSession()" class="btn-primary">🚀 Start Study Session</button>
   </div>
 
   <!-- Chat Interface -->
@@ -64,18 +72,19 @@
     <!-- Messages -->
     <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2" style="min-height: 0; max-height: 50vh;">
       <div class="text-center py-8">
-        <div class="text-4xl mb-3">🤖</div>
-        <p class="text-gray-500 text-sm">Hi! I'm your AI Tutor. Ask me anything about your subject!</p>
+        <div class="text-4xl mb-3">🎓</div>
+        <p class="text-gray-500 text-sm">Hi! I'm your Study Assistant. I'm here to help you understand your subject and do better in school!</p>
+        <p class="text-gray-400 text-xs mt-1">Ask me questions, request explanations, or get help with practice problems.</p>
       </div>
     </div>
 
     <!-- Input -->
     <div class="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-      <input type="text" id="chat-input" class="input-field flex-1" placeholder="Ask a question..." 
+      <input type="text" id="chat-input" class="input-field flex-1" placeholder="Ask a question or request an explanation..."
         onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }">
       <button onclick="sendMessage()" id="send-btn"
-        class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl font-medium text-sm transition-all flex items-center gap-2 flex-shrink-0">
-        <span id="send-text">Send</span>
+        class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-medium text-sm transition-all flex items-center gap-2 flex-shrink-0">
+        <span id="send-text">Ask</span>
         <span id="send-spinner" class="hidden">
           <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -90,7 +99,7 @@
 
 {% block extra_scripts %}
 <script>
-  requireAuth();
+  requireRole('student');
   let currentSession = null;
 
   async function startSession() {
@@ -123,7 +132,6 @@
     sendText.classList.add('hidden');
     sendSpinner.classList.remove('hidden');
 
-    // Show typing indicator
     const typingId = 'typing-' + Date.now();
     appendTyping(typingId);
 
@@ -147,11 +155,11 @@
     const div = document.createElement('div');
     div.className = `flex ${isUser ? 'justify-end' : 'justify-start'} gap-3`;
     div.innerHTML = `
-      ${!isUser ? '<div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg flex-shrink-0 mt-1">🤖</div>' : ''}
+      ${!isUser ? '<div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-lg flex-shrink-0 mt-1">🎓</div>' : ''}
       <div class="chat-bubble ${role} rounded-2xl px-4 py-3 shadow-sm ${isUser ? 'text-white' : 'bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700'}">
         <p class="text-sm whitespace-pre-wrap">${escapeHtml(content)}</p>
       </div>
-      ${isUser ? '<div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-sm flex-shrink-0 mt-1" id="header-avatar-initial2">U</div>' : ''}
+      ${isUser ? '<div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-sm flex-shrink-0 mt-1" id="header-avatar-initial2">U</div>' : ''}
     `;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
@@ -163,7 +171,7 @@
     div.id = id;
     div.className = 'flex justify-start gap-3';
     div.innerHTML = `
-      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg flex-shrink-0">🤖</div>
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-lg flex-shrink-0">🎓</div>
       <div class="bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 rounded-2xl px-4 py-3">
         <div class="flex gap-1 items-center h-4">
           <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0s"></div>
@@ -186,8 +194,9 @@
     document.getElementById('chat-interface').classList.add('hidden');
     document.getElementById('chat-messages').innerHTML = `
       <div class="text-center py-8">
-        <div class="text-4xl mb-3">🤖</div>
-        <p class="text-gray-500 text-sm">Hi! I'm your AI Tutor. Ask me anything about your subject!</p>
+        <div class="text-4xl mb-3">🎓</div>
+        <p class="text-gray-500 text-sm">Hi! I'm your Study Assistant. I'm here to help you understand your subject and do better in school!</p>
+        <p class="text-gray-400 text-xs mt-1">Ask me questions, request explanations, or get help with practice problems.</p>
       </div>`;
   }
 </script>

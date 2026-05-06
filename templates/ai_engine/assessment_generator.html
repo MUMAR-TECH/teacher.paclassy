@@ -118,7 +118,7 @@
 
 {% block extra_scripts %}
 <script>
-  requireAuth();
+  requireRole('teacher');
 
   function setDifficulty(level) {
     document.getElementById('a-difficulty').value = level;

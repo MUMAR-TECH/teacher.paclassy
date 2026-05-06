@@ -27,6 +27,30 @@ function requireAuth(redirectUrl = '/login/') {
   if (!getToken()) { window.location.href = redirectUrl; }
 }
 
+/**
+ * Enforce that the logged-in user has one of the allowed roles.
+ * If not authenticated → redirect to login.
+ * If authenticated but wrong role → redirect to the user's own dashboard.
+ * @param {string|string[]} allowedRoles - e.g. 'teacher' or ['teacher','admin']
+ */
+function requireRole(allowedRoles) {
+  const token = getToken();
+  if (!token) { window.location.href = '/login/'; return; }
+
+  const user = getUser();
+  if (!user) { window.location.href = '/login/'; return; }
+
+  const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  if (!roles.includes(user.role)) {
+    const dashboardMap = {
+      teacher: '/dashboard/teacher/',
+      student: '/dashboard/student/',
+      admin: '/dashboard/admin/',
+    };
+    window.location.href = dashboardMap[user.role] || '/login/';
+  }
+}
+
 async function logout() {
   const refresh = localStorage.getItem(REFRESH_KEY);
   if (refresh) {

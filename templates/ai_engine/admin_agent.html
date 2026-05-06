@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Assistant — Paclassy{% endblock %}
+{% block page_title %}Admin Assistant{% endblock %}
+{% block sidebar_color %}bg-gradient-to-b from-emerald-900 to-emerald-950{% endblock %}
+
+{% block sidebar_nav %}
+<a href="/dashboard/admin/" class="sidebar-link">
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+  <span x-show="sidebarOpen">Dashboard</span>
+</a>
+<div class="pt-4 pb-1.5 px-1" x-show="sidebarOpen">
+  <p class="text-[10px] font-bold text-emerald-400/70 uppercase tracking-widest">My AI Agent</p>
+</div>
+<a href="/ai/admin-agent/" class="sidebar-link active">
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>
+  <span x-show="sidebarOpen">Admin Assistant</span>
+</a>
+<div class="pt-4 pb-1.5 px-1" x-show="sidebarOpen">
+  <p class="text-[10px] font-bold text-emerald-400/70 uppercase tracking-widest">Management</p>
+</div>
+<a href="/school/students/" class="sidebar-link">
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+  <span x-show="sidebarOpen">Students</span>
+</a>
+<a href="/school/attendance/" class="sidebar-link">
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/></svg>
+  <span x-show="sidebarOpen">Attendance</span>
+</a>
+<a href="/school/timetable/" class="sidebar-link">
+  <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+  <span x-show="sidebarOpen">Timetable</span>
+</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+  .chat-bubble { max-width: 80%; }
+  #chat-messages::-webkit-scrollbar { width: 4px; }
+  #chat-messages::-webkit-scrollbar-track { background: transparent; }
+  #chat-messages::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto h-full flex flex-col" style="height: calc(100vh - 140px)">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl">🛡️</div>
+      <div>
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">Admin Assistant</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Your AI partner for school management and operations</p>
+      </div>
+    </div>
+    <button onclick="newSession()" class="btn-secondary">+ New Chat</button>
+  </div>
+
+  <!-- Stats banner -->
+  <div id="stats-banner" class="grid grid-cols-4 gap-3 mb-4">
+    <div class="card py-2.5 text-center">
+      <p class="text-lg font-bold text-gray-900 dark:text-white" id="b-teachers">—</p>
+      <p class="text-xs text-gray-500">Teachers</p>
+    </div>
+    <div class="card py-2.5 text-center">
+      <p class="text-lg font-bold text-gray-900 dark:text-white" id="b-students">—</p>
+      <p class="text-xs text-gray-500">Students</p>
+    </div>
+    <div class="card py-2.5 text-center">
+      <p class="text-lg font-bold text-gray-900 dark:text-white" id="b-active">—</p>
+      <p class="text-xs text-gray-500">Active (24h)</p>
+    </div>
+    <div class="card py-2.5 text-center">
+      <p class="text-lg font-bold text-gray-900 dark:text-white" id="b-credits">—</p>
+      <p class="text-xs text-gray-500">AI Credits</p>
+    </div>
+  </div>
+
+  <!-- Prompt chips -->
+  <div class="flex flex-wrap gap-2 mb-4">
+    <button onclick="useChip(this)" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 hover:bg-emerald-100 transition-colors">📊 How can I improve teacher engagement on the platform?</button>
+    <button onclick="useChip(this)" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 hover:bg-emerald-100 transition-colors">🎯 What features should I promote to increase usage?</button>
+    <button onclick="useChip(this)" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 hover:bg-emerald-100 transition-colors">💡 Tips for onboarding new teachers to Paclassy</button>
+    <button onclick="useChip(this)" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 hover:bg-emerald-100 transition-colors">📋 Best practices for managing AI credits</button>
+  </div>
+
+  <!-- Chat Interface -->
+  <div class="flex-1 card flex flex-col" style="min-height: 0;">
+    <!-- Messages -->
+    <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2" style="min-height: 0; max-height: calc(100vh - 420px);">
+      <div class="text-center py-8" id="welcome-msg">
+        <div class="text-4xl mb-3">🛡️</div>
+        <p class="text-gray-600 dark:text-gray-300 font-medium">Hello, <span id="welcome-name">Admin</span>! I'm your Admin Assistant.</p>
+        <p class="text-gray-400 dark:text-gray-500 text-sm mt-2 max-w-md mx-auto">I can help you interpret analytics, manage users, optimize AI usage, and make data-driven decisions for your school. What would you like to know?</p>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+      <input type="text" id="chat-input" class="input-field flex-1" placeholder="Ask about analytics, user management, operations..."
+        onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }">
+      <button onclick="sendMessage()" id="send-btn"
+        class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-medium text-sm transition-all flex items-center gap-2 flex-shrink-0">
+        <span id="send-text">Ask</span>
+        <span id="send-spinner" class="hidden">
+          <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  requireRole('admin');
+  const user = getUser();
+  if (user) {
+    const name = user.first_name || user.username;
+    const el = document.getElementById('welcome-name');
+    if (el) el.textContent = name;
+  }
+
+  // Load stats into banner
+  apiGet('/api/v1/analytics/admin/').then(data => {
+    if (!data) return;
+    document.getElementById('b-teachers').textContent = data.total_teachers ?? '—';
+    document.getElementById('b-students').textContent = data.total_students ?? '—';
+    document.getElementById('b-active').textContent = data.active_users_24h ?? '—';
+    document.getElementById('b-credits').textContent = data.ai_credits_remaining ?? '—';
+  });
+
+  let currentSession = null;
+
+  async function ensureSession() {
+    if (currentSession) return true;
+    const data = await apiPost('/api/v1/ai/admin-agent/sessions/', { title: 'Admin Assistant Chat' });
+    if (data) {
+      currentSession = data;
+      return true;
+    }
+    return false;
+  }
+
+  function useChip(btn) {
+    const text = btn.textContent.replace(/^[^\s]+\s/, '').trim();
+    document.getElementById('chat-input').value = text;
+    document.getElementById('chat-input').focus();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const ok = await ensureSession();
+    if (!ok) { showToast('Could not start session. Please try again.', 'error'); return; }
+
+    input.value = '';
+    const welcome = document.getElementById('welcome-msg');
+    if (welcome) welcome.remove();
+
+    appendMessage('user', msg);
+
+    const sendBtn = document.getElementById('send-btn');
+    const sendText = document.getElementById('send-text');
+    const sendSpinner = document.getElementById('send-spinner');
+    sendBtn.disabled = true;
+    sendText.classList.add('hidden');
+    sendSpinner.classList.remove('hidden');
+
+    const typingId = 'typing-' + Date.now();
+    appendTyping(typingId);
+
+    const data = await apiPost(`/api/v1/ai/admin-agent/sessions/${currentSession.id}/chat/`, { message: msg });
+
+    document.getElementById(typingId)?.remove();
+    sendBtn.disabled = false;
+    sendText.classList.remove('hidden');
+    sendSpinner.classList.add('hidden');
+
+    if (data) {
+      appendMessage('assistant', data.message);
+    } else {
+      appendMessage('assistant', 'Sorry, I had trouble responding. Please try again.');
+    }
+  }
+
+  function appendMessage(role, content) {
+    const container = document.getElementById('chat-messages');
+    const isUser = role === 'user';
+    const div = document.createElement('div');
+    div.className = `flex ${isUser ? 'justify-end' : 'justify-start'} gap-3`;
+    div.innerHTML = `
+      ${!isUser ? '<div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-lg flex-shrink-0 mt-1">🛡️</div>' : ''}
+      <div class="chat-bubble rounded-2xl px-4 py-3 shadow-sm ${isUser
+        ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white'
+        : 'bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700'}">
+        <p class="text-sm whitespace-pre-wrap">${escapeHtml(content)}</p>
+      </div>
+      ${isUser ? `<div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-sm font-bold text-white flex-shrink-0 mt-1">${(user?.full_name || user?.username || 'A').charAt(0).toUpperCase()}</div>` : ''}
+    `;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function appendTyping(id) {
+    const container = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.id = id;
+    div.className = 'flex justify-start gap-3';
+    div.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-lg flex-shrink-0">🛡️</div>
+      <div class="bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 rounded-2xl px-4 py-3">
+        <div class="flex gap-1 items-center h-4">
+          <div class="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style="animation-delay:0s"></div>
+          <div class="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style="animation-delay:0.15s"></div>
+          <div class="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style="animation-delay:0.3s"></div>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function newSession() {
+    currentSession = null;
+    const container = document.getElementById('chat-messages');
+    container.innerHTML = `
+      <div class="text-center py-8" id="welcome-msg">
+        <div class="text-4xl mb-3">🛡️</div>
+        <p class="text-gray-600 dark:text-gray-300 font-medium">Hello, ${user?.first_name || user?.username || 'Admin'}! I'm your Admin Assistant.</p>
+        <p class="text-gray-400 dark:text-gray-500 text-sm mt-2 max-w-md mx-auto">I can help you interpret analytics, manage users, optimize AI usage, and make data-driven decisions for your school. What would you like to know?</p>
+      </div>`;
+  }
+</script>
+{% endblock %}

@@ -116,7 +116,7 @@
 
 {% block extra_scripts %}
 <script>
-  requireAuth();
+  requireRole('teacher');
 
   let currentLesson = null;
 

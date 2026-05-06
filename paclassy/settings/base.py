@@ -17,7 +17,6 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 ]
 THIRD_PARTY_APPS = [
-    'django_hosts',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -39,7 +38,6 @@ LOCAL_APPS = [
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
-    'django_hosts.middleware.HostsRequestMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -49,22 +47,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'apps.schools.middleware.TenantMiddleware',
-    'apps.accounts.middleware.RoleSubdomainMiddleware',
-    'django_hosts.middleware.HostsResponseMiddleware',
+    'apps.accounts.middleware.RolePathMiddleware',
 ]
 
 ROOT_URLCONF = 'paclassy.urls'
-ROOT_HOSTCONF = 'paclassy.hosts'
-DEFAULT_HOST = 'root'
-
-# Parent hostname used for subdomain construction (override via env for production)
-PARENT_HOST = os.environ.get('PARENT_HOST', 'localhost')
-
-# Set to '.yourdomain.com' in production so session cookies are shared across subdomains
-# SESSION_COOKIE_DOMAIN must be set in production to share sessions across subdomains.
-# Use the leading-dot form, e.g. ".yourdomain.com", so teacher/student/admin subdomains
-# all share the same session. Set via the SESSION_COOKIE_DOMAIN environment variable.
-SESSION_COOKIE_DOMAIN = os.environ.get('SESSION_COOKIE_DOMAIN', None)
 
 LOGIN_URL = '/login/'
 

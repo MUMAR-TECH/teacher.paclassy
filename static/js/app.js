@@ -83,10 +83,26 @@ async function logout() {
 }
 
 /* ─── API Helpers ───────────────────────────────────────────── */
+function getCsrfToken() {
+  // {% csrf_token %} hidden form — most reliable source
+  const input = document.querySelector('#csrf-holder [name="csrfmiddlewaretoken"]');
+  if (input && input.value) return input.value;
+  // Meta tag fallback (also set by Django via {{ csrf_token }})
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  if (meta && meta.getAttribute('content')) return meta.getAttribute('content');
+  // Cookie fallback
+  const match = document.cookie.match(/(^|;)\s*csrftoken=([^;]+)/);
+  return match ? match[2] : '';
+}
+
 async function apiRequest(url, method = 'GET', body = null) {
   const headers = { 'Content-Type': 'application/json' };
   const token = getToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (!['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method.toUpperCase())) {
+    const csrf = getCsrfToken();
+    if (csrf) headers['X-CSRFToken'] = csrf;
+  }
 
   const opts = { method, headers };
   if (body) opts.body = JSON.stringify(body);

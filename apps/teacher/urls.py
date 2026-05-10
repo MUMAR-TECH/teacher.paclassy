@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.dashboard, name='teacher_home'),
     path('dashboard/', views.dashboard, name='teacher_dashboard'),
     path('ai/lesson-planner/', views.lesson_planner, name='lesson_planner'),
+    path('ai/lesson-planner/<int:pk>/download/<str:fmt>/', views.lesson_plan_download, name='lesson_plan_download'),
     path('ai/assessment-generator/', views.assessment_generator, name='assessment_generator'),
     path('ai/content-generator/', views.content_generator, name='content_generator'),
     path('ai/teacher-agent/', views.teacher_agent, name='teacher_agent'),

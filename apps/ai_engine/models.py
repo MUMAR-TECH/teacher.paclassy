@@ -3,7 +3,7 @@ from django.db import models
 
 class LessonPlan(models.Model):
     teacher = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='lesson_plans')
-    school = models.ForeignKey('schools.School', on_delete=models.CASCADE, related_name='lesson_plans')
+    school = models.ForeignKey('schools.School', null=True, blank=True, on_delete=models.SET_NULL, related_name='lesson_plans')
     title = models.CharField(max_length=200)
     subject = models.CharField(max_length=100)
     grade = models.CharField(max_length=20)

@@ -1,31 +1,113 @@
-LESSON_PLAN_PROMPT = """Create a detailed lesson plan in JSON format for:
+LESSON_PLAN_PROMPT = """You are an experienced curriculum designer. Create a comprehensive, detailed lesson plan in JSON format for the following lesson:
+
 - Subject: {subject}
-- Grade: {grade}
+- Grade / Class: {grade}
 - Duration: {duration} minutes
 - Learning Objectives: {objectives}
-- Curriculum: {curriculum}
+- Curriculum Framework: {curriculum}
 
-Return ONLY valid JSON with this structure:
+Return ONLY a single valid JSON object — no markdown, no explanation, no code fences — with EXACTLY this structure:
+
 {{
-  "title": "Lesson title",
-  "overview": "Brief overview",
-  "objectives": ["obj1", "obj2"],
-  "materials": ["mat1", "mat2"],
+  "title": "A clear, descriptive lesson title",
+  "overview": "A 2-3 sentence paragraph describing what this lesson is about, its purpose, and how it fits into the broader unit of study.",
+  "prior_knowledge": "A concise description of the knowledge and skills students are expected to already have before this lesson.",
+  "objectives": [
+    "By the end of this lesson, students will be able to ...",
+    "Students will demonstrate understanding of ... by ..."
+  ],
+  "success_criteria": [
+    "I can explain ...",
+    "I can identify ...",
+    "I can apply ... to solve ..."
+  ],
+  "key_vocabulary": ["term1", "term2", "term3", "term4", "term5"],
+  "materials": [
+    "Textbook: Chapter X",
+    "Whiteboard and markers",
+    "Printed worksheets (1 per student)",
+    "Multimedia projector"
+  ],
   "sections": [
     {{
-      "name": "Introduction",
+      "name": "Starter / Hook",
+      "duration": 5,
+      "teacher_activities": [
+        "Pose a provocative question to the class",
+        "Display a short video clip or image as a stimulus"
+      ],
+      "student_activities": [
+        "Discuss the question with a partner (Think-Pair-Share)",
+        "Share responses with the class"
+      ],
+      "teacher_notes": "Aim to activate prior knowledge and generate curiosity."
+    }},
+    {{
+      "name": "Direct Instruction",
+      "duration": 15,
+      "teacher_activities": [
+        "Introduce key concepts using the board and slides",
+        "Model worked examples step by step",
+        "Check for understanding with targeted questions"
+      ],
+      "student_activities": [
+        "Take structured notes in exercise books",
+        "Answer comprehension questions aloud"
+      ],
+      "teacher_notes": "Use cold-calling to check understanding. Narrate your thinking while modelling."
+    }},
+    {{
+      "name": "Guided Practice",
+      "duration": 15,
+      "teacher_activities": [
+        "Circulate and monitor student progress",
+        "Provide immediate corrective feedback",
+        "Facilitate small-group discussion"
+      ],
+      "student_activities": [
+        "Attempt practice problems individually",
+        "Compare answers with a partner",
+        "Ask clarifying questions"
+      ],
+      "teacher_notes": "Identify common misconceptions and address them with the whole class."
+    }},
+    {{
+      "name": "Independent Practice",
       "duration": 10,
-      "activities": ["activity1"],
-      "teacher_notes": "notes"
+      "teacher_activities": [
+        "Monitor and record observations",
+        "Provide targeted support to struggling students"
+      ],
+      "student_activities": [
+        "Complete worksheet independently",
+        "Apply concepts to new problems"
+      ],
+      "teacher_notes": "This is formative assessment time — note which students need additional support."
+    }},
+    {{
+      "name": "Plenary / Closure",
+      "duration": 5,
+      "teacher_activities": [
+        "Summarise key learning points",
+        "Distribute exit tickets"
+      ],
+      "student_activities": [
+        "Complete exit ticket",
+        "Reflect on what they learned today"
+      ],
+      "teacher_notes": "Review exit tickets before the next lesson to inform planning."
     }}
   ],
-  "assessment": "How to assess learning",
-  "homework": "Homework assignment",
+  "assessment": "Describe formative and summative assessment strategies: e.g., exit tickets, questioning, peer assessment, and any end-of-topic test.",
+  "homework": "A specific, purposeful homework task with clear instructions and expected submission date.",
   "differentiation": {{
-    "support": "For struggling students",
-    "extension": "For advanced students"
-  }}
-}}"""
+    "support": "Strategies and resources for students who need additional support, e.g., graphic organisers, sentence starters, peer mentoring, simplified text.",
+    "extension": "Stretch tasks and higher-order challenges for students who complete work early or are working above the expected level."
+  }},
+  "curriculum": "{curriculum}"
+}}
+
+Tailor all content specifically to the subject '{subject}', grade level '{grade}', and the stated objectives. Make the activities realistic, practical, and directly linked to the objectives. Ensure the section durations add up to exactly {duration} minutes."""
 
 ASSESSMENT_PROMPT = """Generate {num} {type} questions for:
 - Subject: {subject}

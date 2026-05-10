@@ -58,30 +58,21 @@ MOCK_ASSESSMENT = {
 
 
 class AIService:
-    DEFAULT_MODEL = 'gemini-1.5-flash'
+    DEFAULT_MODEL = 'gpt-4.1-mini'
 
     def __init__(self):
-        self.api_key = getattr(settings, 'GEMINI_API_KEY', '')
-        self.model = getattr(settings, 'GEMINI_MODEL', self.DEFAULT_MODEL)
+        self.api_key = getattr(settings, 'OPENAI_API_KEY', '')
+        self.model = getattr(settings, 'OPENAI_MODEL', self.DEFAULT_MODEL)
         self._client = None
-        self._genai = None
-
-    def _configure_genai(self):
-        if self._genai is None and self.api_key:
-            try:
-                import google.generativeai as genai
-                genai.configure(api_key=self.api_key)
-                self._genai = genai
-            except ImportError:
-                logger.warning('google-generativeai package not available')
-        return self._genai
 
     @property
     def client(self):
-        if not self._client and self.api_key:
-            genai = self._configure_genai()
-            if genai:
-                self._client = genai.GenerativeModel(self.model)
+        if self._client is None and self.api_key:
+            try:
+                from openai import OpenAI
+                self._client = OpenAI(api_key=self.api_key)
+            except ImportError:
+                logger.warning('openai package not available')
         return self._client
 
     def _get_cache_key(self, prompt: str) -> str:
@@ -89,7 +80,7 @@ class AIService:
 
     def generate(self, prompt: str, use_cache: bool = True) -> str:
         if not self.api_key or not self.client:
-            return json.dumps({"raw": "AI service not configured. Please set GEMINI_API_KEY."})
+            return json.dumps({"raw": "AI service not configured. Please set OPENAI_API_KEY."})
 
         if use_cache:
             cache_key = self._get_cache_key(prompt)
@@ -98,18 +89,35 @@ class AIService:
                 return cached
 
         try:
-            response = self.client.generate_content(
-                prompt,
-                generation_config={"temperature": 0.7},
+            response = self.client.responses.create(
+                model=self.model,
+                input=prompt,
+                store=True,
             )
-            result = response.text
+            result = response.output_text
 
             if use_cache:
                 cache.set(cache_key, result, timeout=3600)
             return result
         except Exception as e:
-            logger.error(f"Gemini API error: {e}")
+            logger.error(f"OpenAI API error: {e}")
             return json.dumps({"error": str(e), "raw": "AI generation failed."})
+
+    def _chat(self, messages: list, use_cache: bool = False) -> str:
+        """Send a multi-turn conversation to the Responses API."""
+        if not self.api_key or not self.client:
+            return json.dumps({"raw": "AI service not configured. Please set OPENAI_API_KEY."})
+
+        try:
+            response = self.client.responses.create(
+                model=self.model,
+                input=messages,
+                store=True,
+            )
+            return response.output_text
+        except Exception as e:
+            logger.error(f"OpenAI API error: {e}")
+            return "I'm having trouble responding right now. Please try again later."
 
     def generate_lesson_plan(self, subject, grade, duration, objectives, curriculum=None):
         if not self.api_key:
@@ -143,7 +151,7 @@ class AIService:
 
     def generate_content(self, content_type, subject, grade, topic, difficulty, language):
         if not self.api_key:
-            return f"[Mock {content_type} content for {topic} in {subject} for Grade {grade}]\n\nThis is sample content. Configure GEMINI_API_KEY for real AI-generated content."
+            return f"[Mock {content_type} content for {topic} in {subject} for Grade {grade}]\n\nThis is sample content. Configure OPENAI_API_KEY for real AI-generated content."
 
         from .prompts import CONTENT_PROMPT
         prompt = CONTENT_PROMPT.format(
@@ -152,42 +160,25 @@ class AIService:
         )
         return self.generate(prompt)
 
-    def _build_chat_model(self, system_instruction: str):
-        genai = self._configure_genai()
-        if not genai:
-            return None
-        return genai.GenerativeModel(self.model, system_instruction=system_instruction)
-
     def chat_with_tutor(self, messages, subject, grade):
         if not self.api_key:
-            return "AI Tutor is not configured. Please set GEMINI_API_KEY to enable this feature."
+            return "AI Tutor is not configured. Please set OPENAI_API_KEY to enable this feature."
 
         from .prompts import TUTOR_SYSTEM_PROMPT
         system_prompt = TUTOR_SYSTEM_PROMPT.format(subject=subject, grade=grade)
 
         try:
-            model = self._build_chat_model(system_prompt)
-            if not model:
-                return "AI Tutor is not available. Please check that google-generativeai is installed."
-
-            role_map = {"assistant": "model", "user": "user"}
-            history = []
-            for msg in messages[:-1]:
-                role = role_map.get(msg["role"])
-                if role is None:
+            input_messages = [{"role": "system", "content": system_prompt}]
+            for msg in messages:
+                role = msg.get("role")
+                if role not in ("user", "assistant"):
                     logger.warning(
                         "Skipping message with unsupported role '%s'. Supported roles: 'user', 'assistant'.",
-                        msg["role"],
+                        role,
                     )
                     continue
-                history.append({"role": role, "parts": [msg["content"]]})
-            chat = model.start_chat(history=history)
-            last_message = messages[-1]["content"] if messages else ""
-            response = chat.send_message(
-                last_message,
-                generation_config={"temperature": 0.8},
-            )
-            return response.text
+                input_messages.append({"role": role, "content": msg["content"]})
+            return self._chat(input_messages)
         except Exception as e:
             logger.error(f"Tutor chat error: {e}")
             return "I'm having trouble responding right now. Please try again later."
@@ -219,37 +210,26 @@ class AIService:
     def _chat_with_agent(self, messages, system_prompt):
         """Shared chat logic for both teacher and admin agents."""
         if not self.api_key:
-            return "AI Assistant is not configured. Please set GEMINI_API_KEY to enable this feature."
+            return "AI Assistant is not configured. Please set OPENAI_API_KEY to enable this feature."
 
         try:
-            model = self._build_chat_model(system_prompt)
-            if not model:
-                return "AI Assistant is not available. Please check that google-generativeai is installed."
-
-            role_map = {"assistant": "model", "user": "user"}
-            history = []
-            for msg in messages[:-1]:
-                role = role_map.get(msg["role"])
-                if role is None:
+            input_messages = [{"role": "system", "content": system_prompt}]
+            for msg in messages:
+                role = msg.get("role")
+                if role not in ("user", "assistant"):
                     logger.warning(
-                        "Skipping message with unsupported role '%s'.", msg["role"]
+                        "Skipping message with unsupported role '%s'.", role
                     )
                     continue
-                history.append({"role": role, "parts": [msg["content"]]})
-            chat = model.start_chat(history=history)
-            last_message = messages[-1]["content"] if messages else ""
-            response = chat.send_message(
-                last_message,
-                generation_config={"temperature": 0.8},
-            )
-            return response.text
+                input_messages.append({"role": role, "content": msg["content"]})
+            return self._chat(input_messages)
         except Exception as e:
             logger.error(f"Agent chat error: {e}")
             return "I'm having trouble responding right now. Please try again later."
 
     def chat_with_teacher_agent(self, messages, teacher_name, school_name, subjects, grades):
         if not self.api_key:
-            return "Teacher Assistant is not configured. Please set GEMINI_API_KEY to enable this feature."
+            return "Teacher Assistant is not configured. Please set OPENAI_API_KEY to enable this feature."
 
         from .prompts import TEACHER_AGENT_SYSTEM_PROMPT
         system_prompt = TEACHER_AGENT_SYSTEM_PROMPT.format(
@@ -262,7 +242,7 @@ class AIService:
 
     def chat_with_admin_agent(self, messages, admin_name, school_name, total_teachers, total_students, ai_credits):
         if not self.api_key:
-            return "Admin Assistant is not configured. Please set GEMINI_API_KEY to enable this feature."
+            return "Admin Assistant is not configured. Please set OPENAI_API_KEY to enable this feature."
 
         from .prompts import ADMIN_AGENT_SYSTEM_PROMPT
         system_prompt = ADMIN_AGENT_SYSTEM_PROMPT.format(
